@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // smallWeightHamiltonianPath
 Rcpp::IntegerVector smallWeightHamiltonianPath(Rcpp::NumericMatrix dmat);
-RcppExport SEXP ehmm_smallWeightHamiltonianPath(SEXP dmatSEXP) {
+RcppExport SEXP _ehmm_smallWeightHamiltonianPath(SEXP dmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,7 +18,7 @@ END_RCPP
 }
 // setDim_unsafe
 void setDim_unsafe(Rcpp::RObject obj, Rcpp::IntegerVector dims);
-RcppExport SEXP ehmm_setDim_unsafe(SEXP objSEXP, SEXP dimsSEXP) {
+RcppExport SEXP _ehmm_setDim_unsafe(SEXP objSEXP, SEXP dimsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::RObject >::type obj(objSEXP);
@@ -29,7 +29,7 @@ END_RCPP
 }
 // setDimnames_unsafe
 void setDimnames_unsafe(Rcpp::RObject obj, Rcpp::List dimnames);
-RcppExport SEXP ehmm_setDimnames_unsafe(SEXP objSEXP, SEXP dimnamesSEXP) {
+RcppExport SEXP _ehmm_setDimnames_unsafe(SEXP objSEXP, SEXP dimnamesSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::RObject >::type obj(objSEXP);
@@ -40,19 +40,19 @@ END_RCPP
 }
 // bindCols_numeric
 Rcpp::NumericMatrix bindCols_numeric(Rcpp::List vlist, int nthreads);
-RcppExport SEXP ehmm_bindCols_numeric(SEXP vlistSEXP, SEXP nthreadsSEXP) {
-  BEGIN_RCPP
-	Rcpp::RObject rcpp_result_gen;
-  Rcpp::RNGScope rcpp_rngScope_gen;
-  Rcpp::traits::input_parameter< Rcpp::List >::type vlist(vlistSEXP);
-  Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-  rcpp_result_gen = Rcpp::wrap(bindCols_numeric(vlist, nthreads));
-  return rcpp_result_gen;
-  END_RCPP
-	}
+RcppExport SEXP _ehmm_bindCols_numeric(SEXP vlistSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type vlist(vlistSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bindCols_numeric(vlist, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // bindCols
 Rcpp::IntegerMatrix bindCols(Rcpp::List vlist, int nthreads);
-RcppExport SEXP ehmm_bindCols(SEXP vlistSEXP, SEXP nthreadsSEXP) {
+RcppExport SEXP _ehmm_bindCols(SEXP vlistSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,7 +64,7 @@ END_RCPP
 }
 // bindCList
 Rcpp::IntegerMatrix bindCList(Rcpp::List clist, int nthreads);
-RcppExport SEXP ehmm_bindCList(SEXP clistSEXP, SEXP nthreadsSEXP) {
+RcppExport SEXP _ehmm_bindCList(SEXP clistSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -76,7 +76,7 @@ END_RCPP
 }
 // writeCountsTXT
 void writeCountsTXT(Rcpp::IntegerMatrix counts, std::vector<std::string> marks, std::string path);
-RcppExport SEXP ehmm_writeCountsTXT(SEXP countsSEXP, SEXP marksSEXP, SEXP pathSEXP) {
+RcppExport SEXP _ehmm_writeCountsTXT(SEXP countsSEXP, SEXP marksSEXP, SEXP pathSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type counts(countsSEXP);
@@ -88,7 +88,7 @@ END_RCPP
 }
 // writeCountsTXT_double
 void writeCountsTXT_double(Rcpp::NumericMatrix counts, std::vector<std::string> marks, std::string path);
-RcppExport SEXP ehmm_writeCountsTXT_double(SEXP countsSEXP, SEXP marksSEXP, SEXP pathSEXP) {
+RcppExport SEXP _ehmm_writeCountsTXT_double(SEXP countsSEXP, SEXP marksSEXP, SEXP pathSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
@@ -100,7 +100,7 @@ END_RCPP
 }
 // avgCountsPerClust
 Rcpp::NumericMatrix avgCountsPerClust(Rcpp::IntegerMatrix counts, Rcpp::IntegerVector clusts);
-RcppExport SEXP ehmm_avgCountsPerClust(SEXP countsSEXP, SEXP clustsSEXP) {
+RcppExport SEXP _ehmm_avgCountsPerClust(SEXP countsSEXP, SEXP clustsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -112,7 +112,7 @@ END_RCPP
 }
 // tabf
 Rcpp::IntegerVector tabf(Rcpp::IntegerVector v, bool naRm);
-RcppExport SEXP ehmm_tabf(SEXP vSEXP, SEXP naRmSEXP) {
+RcppExport SEXP _ehmm_tabf(SEXP vSEXP, SEXP naRmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -124,7 +124,7 @@ END_RCPP
 }
 // tabf2
 Rcpp::IntegerMatrix tabf2(Rcpp::IntegerVector v1, Rcpp::IntegerVector v2, bool naRm);
-RcppExport SEXP ehmm_tabf2(SEXP v1SEXP, SEXP v2SEXP, SEXP naRmSEXP) {
+RcppExport SEXP _ehmm_tabf2(SEXP v1SEXP, SEXP v2SEXP, SEXP naRmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -137,7 +137,7 @@ END_RCPP
 }
 // colSummary
 Rcpp::IntegerVector colSummary(Rcpp::IntegerMatrix mat, std::string type, int nthreads);
-RcppExport SEXP ehmm_colSummary(SEXP matSEXP, SEXP typeSEXP, SEXP nthreadsSEXP) {
+RcppExport SEXP _ehmm_colSummary(SEXP matSEXP, SEXP typeSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -150,7 +150,7 @@ END_RCPP
 }
 // getRef
 Rcpp::IntegerVector getRef(Rcpp::IntegerMatrix mat, std::string type, int nthreads);
-RcppExport SEXP ehmm_getRef(SEXP matSEXP, SEXP typeSEXP, SEXP nthreadsSEXP) {
+RcppExport SEXP _ehmm_getRef(SEXP matSEXP, SEXP typeSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -163,7 +163,7 @@ END_RCPP
 }
 // quantileNorm
 Rcpp::IntegerMatrix quantileNorm(Rcpp::IntegerMatrix mat, Rcpp::IntegerVector ref, int nthreads, int seed);
-RcppExport SEXP ehmm_quantileNorm(SEXP matSEXP, SEXP refSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
+RcppExport SEXP _ehmm_quantileNorm(SEXP matSEXP, SEXP refSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -177,7 +177,7 @@ END_RCPP
 }
 // clist2mlist
 Rcpp::List clist2mlist(Rcpp::List clist, int nthreads);
-RcppExport SEXP ehmm_clist2mlist(SEXP clistSEXP, SEXP nthreadsSEXP) {
+RcppExport SEXP _ehmm_clist2mlist(SEXP clistSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -189,7 +189,7 @@ END_RCPP
 }
 // mlist2clist
 Rcpp::List mlist2clist(Rcpp::List mlist, int nthreads);
-RcppExport SEXP ehmm_mlist2clist(SEXP mlistSEXP, SEXP nthreadsSEXP) {
+RcppExport SEXP _ehmm_mlist2clist(SEXP mlistSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -201,7 +201,7 @@ END_RCPP
 }
 // testSortCounts
 Rcpp::IntegerVector testSortCounts(Rcpp::IntegerVector v);
-RcppExport SEXP ehmm_testSortCounts(SEXP vSEXP) {
+RcppExport SEXP _ehmm_testSortCounts(SEXP vSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -212,7 +212,7 @@ END_RCPP
 }
 // testMeanAndMedian
 int testMeanAndMedian(Rcpp::IntegerVector v, std::string type);
-RcppExport SEXP ehmm_testMeanAndMedian(SEXP vSEXP, SEXP typeSEXP) {
+RcppExport SEXP _ehmm_testMeanAndMedian(SEXP vSEXP, SEXP typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -224,7 +224,7 @@ END_RCPP
 }
 // statesToSegments_helper
 Rcpp::List statesToSegments_helper(Rcpp::RObject regions, Rcpp::IntegerVector states);
-RcppExport SEXP ehmm_statesToSegments_helper(SEXP regionsSEXP, SEXP statesSEXP) {
+RcppExport SEXP _ehmm_statesToSegments_helper(SEXP regionsSEXP, SEXP statesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -236,7 +236,7 @@ END_RCPP
 }
 // segmentsToBed
 void segmentsToBed(Rcpp::RObject segments, std::vector<std::string> labels, std::vector<std::string> colors, std::string path);
-RcppExport SEXP ehmm_segmentsToBed(SEXP segmentsSEXP, SEXP labelsSEXP, SEXP colorsSEXP, SEXP pathSEXP) {
+RcppExport SEXP _ehmm_segmentsToBed(SEXP segmentsSEXP, SEXP labelsSEXP, SEXP colorsSEXP, SEXP pathSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::RObject >::type segments(segmentsSEXP);
@@ -246,4 +246,33 @@ BEGIN_RCPP
     segmentsToBed(segments, labels, colors, path);
     return R_NilValue;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_ehmm_smallWeightHamiltonianPath", (DL_FUNC) &_ehmm_smallWeightHamiltonianPath, 1},
+    {"_ehmm_setDim_unsafe", (DL_FUNC) &_ehmm_setDim_unsafe, 2},
+    {"_ehmm_setDimnames_unsafe", (DL_FUNC) &_ehmm_setDimnames_unsafe, 2},
+    {"_ehmm_bindCols_numeric", (DL_FUNC) &_ehmm_bindCols_numeric, 2},
+    {"_ehmm_bindCols", (DL_FUNC) &_ehmm_bindCols, 2},
+    {"_ehmm_bindCList", (DL_FUNC) &_ehmm_bindCList, 2},
+    {"_ehmm_writeCountsTXT", (DL_FUNC) &_ehmm_writeCountsTXT, 3},
+    {"_ehmm_writeCountsTXT_double", (DL_FUNC) &_ehmm_writeCountsTXT_double, 3},
+    {"_ehmm_avgCountsPerClust", (DL_FUNC) &_ehmm_avgCountsPerClust, 2},
+    {"_ehmm_tabf", (DL_FUNC) &_ehmm_tabf, 2},
+    {"_ehmm_tabf2", (DL_FUNC) &_ehmm_tabf2, 3},
+    {"_ehmm_colSummary", (DL_FUNC) &_ehmm_colSummary, 3},
+    {"_ehmm_getRef", (DL_FUNC) &_ehmm_getRef, 3},
+    {"_ehmm_quantileNorm", (DL_FUNC) &_ehmm_quantileNorm, 4},
+    {"_ehmm_clist2mlist", (DL_FUNC) &_ehmm_clist2mlist, 2},
+    {"_ehmm_mlist2clist", (DL_FUNC) &_ehmm_mlist2clist, 2},
+    {"_ehmm_testSortCounts", (DL_FUNC) &_ehmm_testSortCounts, 1},
+    {"_ehmm_testMeanAndMedian", (DL_FUNC) &_ehmm_testMeanAndMedian, 2},
+    {"_ehmm_statesToSegments_helper", (DL_FUNC) &_ehmm_statesToSegments_helper, 2},
+    {"_ehmm_segmentsToBed", (DL_FUNC) &_ehmm_segmentsToBed, 4},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_ehmm(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

@@ -2,82 +2,82 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 smallWeightHamiltonianPath <- function(dmat) {
-    .Call('ehmm_smallWeightHamiltonianPath', PACKAGE = 'ehmm', dmat)
+    .Call('_ehmm_smallWeightHamiltonianPath', PACKAGE = 'ehmm', dmat)
 }
 
 setDim_unsafe <- function(obj, dims) {
-    invisible(.Call('ehmm_setDim_unsafe', PACKAGE = 'ehmm', obj, dims))
+    invisible(.Call('_ehmm_setDim_unsafe', PACKAGE = 'ehmm', obj, dims))
 }
 
 setDimnames_unsafe <- function(obj, dimnames) {
-    invisible(.Call('ehmm_setDimnames_unsafe', PACKAGE = 'ehmm', obj, dimnames))
+    invisible(.Call('_ehmm_setDimnames_unsafe', PACKAGE = 'ehmm', obj, dimnames))
 }
 
 bindCols_numeric <- function(vlist, nthreads = 1L) {
-    .Call('ehmm_bindCols_numeric', PACKAGE = 'ehmm', vlist, nthreads)
+    .Call('_ehmm_bindCols_numeric', PACKAGE = 'ehmm', vlist, nthreads)
 }
 
 bindCols <- function(vlist, nthreads = 1L) {
-    .Call('ehmm_bindCols', PACKAGE = 'ehmm', vlist, nthreads)
+    .Call('_ehmm_bindCols', PACKAGE = 'ehmm', vlist, nthreads)
 }
 
 bindCList <- function(clist, nthreads = 1L) {
-    .Call('ehmm_bindCList', PACKAGE = 'ehmm', clist, nthreads)
+    .Call('_ehmm_bindCList', PACKAGE = 'ehmm', clist, nthreads)
 }
 
 writeCountsTXT <- function(counts, marks, path) {
-    invisible(.Call('ehmm_writeCountsTXT', PACKAGE = 'ehmm', counts, marks, path))
+    invisible(.Call('_ehmm_writeCountsTXT', PACKAGE = 'ehmm', counts, marks, path))
 }
 
 writeCountsTXT_double <- function(counts, marks, path) {
-    invisible(.Call('ehmm_writeCountsTXT_double', PACKAGE = 'ehmm', counts, marks, path))
+    invisible(.Call('_ehmm_writeCountsTXT_double', PACKAGE = 'ehmm', counts, marks, path))
 }
 
 avgCountsPerClust <- function(counts, clusts) {
-    .Call('ehmm_avgCountsPerClust', PACKAGE = 'ehmm', counts, clusts)
+    .Call('_ehmm_avgCountsPerClust', PACKAGE = 'ehmm', counts, clusts)
 }
 
 tabf <- function(v, naRm = TRUE) {
-    .Call('ehmm_tabf', PACKAGE = 'ehmm', v, naRm)
+    .Call('_ehmm_tabf', PACKAGE = 'ehmm', v, naRm)
 }
 
 tabf2 <- function(v1, v2, naRm = TRUE) {
-    .Call('ehmm_tabf2', PACKAGE = 'ehmm', v1, v2, naRm)
+    .Call('_ehmm_tabf2', PACKAGE = 'ehmm', v1, v2, naRm)
 }
 
 colSummary <- function(mat, type, nthreads = 1L) {
-    .Call('ehmm_colSummary', PACKAGE = 'ehmm', mat, type, nthreads)
+    .Call('_ehmm_colSummary', PACKAGE = 'ehmm', mat, type, nthreads)
 }
 
 getRef <- function(mat, type, nthreads = 1L) {
-    .Call('ehmm_getRef', PACKAGE = 'ehmm', mat, type, nthreads)
+    .Call('_ehmm_getRef', PACKAGE = 'ehmm', mat, type, nthreads)
 }
 
 quantileNorm <- function(mat, ref, nthreads = 1L, seed = 13L) {
-    .Call('ehmm_quantileNorm', PACKAGE = 'ehmm', mat, ref, nthreads, seed)
+    .Call('_ehmm_quantileNorm', PACKAGE = 'ehmm', mat, ref, nthreads, seed)
 }
 
 clist2mlist <- function(clist, nthreads = 1L) {
-    .Call('ehmm_clist2mlist', PACKAGE = 'ehmm', clist, nthreads)
+    .Call('_ehmm_clist2mlist', PACKAGE = 'ehmm', clist, nthreads)
 }
 
 mlist2clist <- function(mlist, nthreads = 1L) {
-    .Call('ehmm_mlist2clist', PACKAGE = 'ehmm', mlist, nthreads)
+    .Call('_ehmm_mlist2clist', PACKAGE = 'ehmm', mlist, nthreads)
 }
 
 testSortCounts <- function(v) {
-    .Call('ehmm_testSortCounts', PACKAGE = 'ehmm', v)
+    .Call('_ehmm_testSortCounts', PACKAGE = 'ehmm', v)
 }
 
 testMeanAndMedian <- function(v, type) {
-    .Call('ehmm_testMeanAndMedian', PACKAGE = 'ehmm', v, type)
+    .Call('_ehmm_testMeanAndMedian', PACKAGE = 'ehmm', v, type)
 }
 
 statesToSegments_helper <- function(regions, states) {
-    .Call('ehmm_statesToSegments_helper', PACKAGE = 'ehmm', regions, states)
+    .Call('_ehmm_statesToSegments_helper', PACKAGE = 'ehmm', regions, states)
 }
 
 segmentsToBed <- function(segments, labels, colors, path) {
-    invisible(.Call('ehmm_segmentsToBed', PACKAGE = 'ehmm', segments, labels, colors, path))
+    invisible(.Call('_ehmm_segmentsToBed', PACKAGE = 'ehmm', segments, labels, colors, path))
 }
 

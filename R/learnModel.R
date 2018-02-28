@@ -27,36 +27,7 @@ learnModelCLI <- function(args, prog){
   #parse the options
   opt <- parseArgs(learnModelOptions, args, prog)
   #call 'learnModel'
-  model <- do.call(learnModel, opt)
-}
-
-segmentCLI <- function(args, prog){
-  segmentOptions <- getSegmentOptions()
-  #parse the options
-  opt <- parseArgs(segmentOptions, args, prog)
-  #deal with the two scenarios for the 'counts' option
-  if (length(opt$counts)==1 && !grepl(":", opt$counts)){
-    opt$counts <- readCounts(opt$counts)
-  } else {
-    lp <- label_sc_path(opt$counts, unique.labels=TRUE)
-    opt$counts <- lapply(setNames(lp$path, lp$label), readCounts)
-  }
-  #split the options for 'segment' from the options for 'report'
-  roptnames <- intersect(includeOptNames, names(opt))
-  sopt <- opt[setdiff(names(opt), roptnames)]
-  ropt <- opt[roptnames]
-  #deal with 'save_rdata'
-  save_rdata <- !is.null(sopt$save_rdata)
-  sopt$save_rdata <- NULL
-  #call 'segment'
-  segmentation <- do.call(segment, sopt)
-  #set the computed options for 'report'
-  ropt$segments <- segmentation$segments
-  ropt$model <- segmentation$model
-  if (save_rdata) ropt$rdata <- segmentation
-  #call 'report'
-  cat("producing report\n")
-  do.call(report, ropt)
+  segmentation <- do.call(learnModel, opt)
 }
 
 #' Learn a model and produce a segmentation
@@ -98,7 +69,7 @@ learnModel <- function(bamdir, regions, outdir=".", nthreads=1, pseudoCount=1){
   #TODO: implement fast learning on random 20mb subset..?
   cat("learning model\n")
   segmentation <- segment(counts=rpmCounts, regions=regions, nstates=10, nthreads=nthreads,
-                   verbose_kfoots=TRUE, nbtype='lognormal', maxiter=5)
+                   verbose_kfoots=TRUE, nbtype='lognormal')
   
   # produce 'report'
   cat("producing report\n")
