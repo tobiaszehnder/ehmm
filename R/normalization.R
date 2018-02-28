@@ -40,3 +40,16 @@ defaultRepFun <- function(vmat, normFun=quantileNormalization, nthreads=1, ...){
     nvmat <- do.call(normFun, normFunOpts)
     colSummary(t(nvmat), "median", nthreads=nthreads)
 }
+
+rpmNormalizeCounts <- function(counts, bamtab, binsize, pseudoCount){
+  # rpm normalization requires total number of reads obtained from the bam files.
+  # note: add (pseudoCount * nbins) to the total number of reads.
+  # nbins is the theoretical number of bins in the whole genome given by the total seqlength divided by the binsize.
+  nreads.total <- rep(0,length(bamtab$mark)); names(nreads.total) <- features
+  bamstats <- sapply(1:nrow(bamtab), function(i) Rsamtools:::idxstatsBam(bamtab$path[i]))
+  seqlengths.total <- sapply(1:nrow(bamtab), function(i) sum(as.numeric(bamstats['seqlength',][[i]])))
+  nbins <- seqlengths.total / binsize
+  nreads.total <- sapply(1:nrow(bamtab), function(i) sum(bamstats['mapped',][[i]])) + nbins
+  rpmCounts <- counts / nreads.total * 10^6
+  return(rpmCounts)
+}

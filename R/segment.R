@@ -218,11 +218,11 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
       states.e <- which(startsWith(statevec, 'E_'))
       states.e.n1 <- which(startsWith(statevec, 'E_N1'))
       states.bg <- which(startsWith(statevec, 'bg'))
-      state_dict <- list(enhancer_states = states.e, enhancer_states_n1 = states.e.n1, bg_states = states.bg)
+      states <- list(enhancer_states = states.e, enhancer_states_n1 = states.e.n1, bg_states = states.bg)
     } else {
-      state_dict <- list(enhancer_states=NULL, enhancer_states_n1=NULL, bg_states=NULL)
+      states <- list(enhancer_states=NULL, enhancer_states_n1=NULL, bg_states=NULL)
     }
-    kfootsOpts$state_dict <- state_dict
+    kfootsOpts$state_dict <- states
 
     kfootsOpts$maxiter <- maxiter
     #seqlens depend on the genomic regions
