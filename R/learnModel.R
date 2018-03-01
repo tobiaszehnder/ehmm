@@ -10,14 +10,14 @@ getLearnModelOptions <- function(){
          a new bed file will be produced where each coordinate 
          is a multiple of binsize. Use this new file together with
          the count matrix for later analyses."),
-    list(arg="--bamdir", type="character", required=TRUE,
+    list(arg="--outdir", type="character", required=TRUE,
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(learnModel)$nthreads,
          help="Number of threads to be used"),
     list(arg="--pseudoCount", type="integer",
          help="Pseudo-count added to read-counts.
          This is necessary because log-counts are calculated in order to
-         fit a log-normal distribution.")
+         fit a log-normal distribution."),
     )
   opts
 }
