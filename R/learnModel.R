@@ -10,6 +10,8 @@ getLearnModelOptions <- function(){
          a new bed file will be produced where each coordinate 
          is a multiple of binsize. Use this new file together with
          the count matrix for later analyses."),
+    list(arg="--nstates", type="integer", required=TRUE,
+         help="Number of states to use for training"),
     list(arg="--outdir", type="character", required=TRUE,
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(learnModel)$nthreads,
@@ -34,6 +36,7 @@ learnModelCLI <- function(args, prog){
 #'
 #' @param bamdir path to the bam-file directory.
 #' @param regions GRanges object containing the genomic regions of interest.
+#' @param nstates Number of states to learn.
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
 #' @param pseudoCount pseudo-count to add to read counts.
@@ -41,7 +44,7 @@ learnModelCLI <- function(args, prog){
 #' @return A list with the following arguments:
 #' 
 #' @export
-learnModel <- function(bamdir, regions, outdir=".", nthreads=1, pseudoCount=1){
+learnModel <- function(bamdir, regions, nstates, outdir=".", nthreads=1, pseudoCount=1){
   # check arguments and define variables
   featurePaths <- normalizePath(paste(bamdir, list.files(path=bamdir, pattern = "\\.bam$"), sep='/'))
   features <- gsub(".bam", "", list.files(path=bamdir, pattern = "\\.bam$"))
@@ -68,7 +71,7 @@ learnModel <- function(bamdir, regions, outdir=".", nthreads=1, pseudoCount=1){
   # learn unsupervised model
   #TODO: implement fast learning on random 20mb subset..?
   cat("learning model\n")
-  segmentation <- segment(counts=rpmCounts, regions=regions, nstates=10, nthreads=nthreads,
+  segmentation <- segment(counts=rpmCounts, regions=regions, nstates=nstates, nthreads=nthreads,
                    verbose_kfoots=TRUE, nbtype='lognormal')
   
   # produce 'report'

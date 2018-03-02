@@ -249,7 +249,7 @@ initializeParams <- function(model, states.a, states.n){
   # this function extracts given accessibility / nucleosome states from a given model and constructs a model with a N1-A-N2 architecture
   n.acc <- length(states.a)
   n.nuc <- length(states.n)
-  n.states <- n.acc + 2 * n.nuc
+  model$nstates <- n.acc + 2 * n.nuc
   states.n1 <- 1:n.nuc
   states.a <- 1:n.acc + max(states.n1)
   states.n2 <- states.n1 + max(states.a)
@@ -258,7 +258,7 @@ initializeParams <- function(model, states.a, states.n){
   model$emisP <- model$emisP[c(states.n, states.a, states.n)]
   
   # transition probabilities: initial guess independent from the given model. will be refined (learned) in the next step.
-  model$transP <- matrix(0, nrow=n.states, ncol=n.states)
+  model$transP <- matrix(0, nrow=model$nstates, ncol=model$nstates)
   model$transP[states.n1, states.n1] <- 0.5 / n.nuc
   model$transP[states.n1, states.a] <- 0.5 / n.acc
   model$transP[states.a, states.a] <- 0.9 / n.acc
@@ -266,11 +266,11 @@ initializeParams <- function(model, states.a, states.n){
   model$transP[states.n2, states.n2] <- 1 / n.nuc
   
   # initial probabilities: initial guess of equal probabilities for N1 states, 0 for the rest.
-  model$initP <- c(rep(1/n.nuc, n.nuc), rep(0, n.acc+n.nuc))
+  model$initP <- matrix(c(rep(1/n.nuc, n.nuc), rep(0, n.acc+n.nuc)))
 
   # add labels to model object and define endstates (N2*)
   model$labels <- c(paste0('N1.', 1:n.nuc), paste0('A.', 1:n.acc), paste0('N2.', 1:n.nuc))
-  model$endstates <- which(grepl('N2', model$labels))
+  model$endstates <- states.n2
   
   return(model)
 }

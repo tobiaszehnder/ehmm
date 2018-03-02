@@ -88,8 +88,10 @@ applyModel <- function(model=NULL, model.bg=NULL, model.e=NULL, model.p=NULL, st
     
     # refine enhancer / promoter models (relearn on training data with keeping emisP fixed)
     model.e.refined <- segment(counts=rpmCounts.e, regions=regions.e, model=model.e, nstates=model.e$nstates,
-                               nthreads=nthreads, verbose_kfoots=TRUE, nbtype='lognormal', endstates=model$endstates,
+                               nthreads=nthreads, verbose_kfoots=TRUE, nbtype='lognormal', endstate=model$endstates,
                                colors=model$colors, labels=model$labels, trainMode='viterbi', fix_emisP=TRUE)
+    ####### --> THIS DOES NOT WORK YET (SOME ARGUMENTS ARE NOT ALLOWED TO PASS...?)
+    ####### --> ALSO, CHANGE endstate TO endstates (pass vector instead of integer)
     ## same for model.p
     
     # combine fg / bg models
