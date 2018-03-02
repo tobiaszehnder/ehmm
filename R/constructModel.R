@@ -87,46 +87,31 @@ constructModel <- function(model.bg=NULL, model.e=NULL, model.p=NULL, rpmCounts.
   # write a separate function that gets passed a model (either from the global eHMM after this function or from the user directly)
   # change kfoots: state_dict is not passed, pass escore flag instead from segment.R in case labels are passed that start with "E_*"
   
-  # parse stateSelection argument
-  
   # construct initial enhancer / promoter models 
   model.e.init <- initializeParams(model.e, accStates.e, nucStates.e)
-  model.e.init$labels <- paste0('E_', model.e.init$labels)
   model.p.init <- initializeParams(model.p, accStates.p, nucStates.p)
-  model.p.init$labels <- paste0('P_', model.p.init$labels)
-  model.bg$labels <- paste0('bg', 1:model.bg$nstates)
   
-  # define colors
-  model.e.init$colors <- c(rev(tail(brewer.pal(9,'Greens')[-c(8,9)], length(nucStates.e))), colorRampPalette(brewer.pal(9,'YlOrBr')[2:4])(length(accStates.e)),
-                           rev(tail(brewer.pal(9,'Greens')[-c(8,9)], length(nucStates.e))))
-  model.p.init$colors <- c(rev(tail(brewer.pal(9,'Reds')[-9], length(nucStates.p))), colorRampPalette(brewer.pal(9,'YlOrBr')[2:4])(length(accStates.p)),
-                           rev(tail(brewer.pal(9,'Reds')[-9], length(nucStates.p))))
-  model.bg$colors <- tail(colorRampPalette(brewer.pal(9,'Greys'))(20), model.bg$nstates)
-  colors <- c(colors.e, colors.p, colors.bg)
-
   # refine enhancer / promoter models (relearn on training data with keeping emisP fixed)
-  segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, collapseInitP=FALSE, 
-                      nthreads=1, split4speed=FALSE, maxiter=200, verbose_kfoots=FALSE, 
-                      trainMode="baum-welch", fix_emisP=FALSE, state_dict=NULL, ...){
-  model.e.refined <- segment(counts=rpmCounts.e, regions=regions.e,  nstates=model.e.init$nstates, model=model.e.init, nthreads=nthreads,
-                             verbose_kfoots=TRUE, trainMode='viterbi', fix_emisP=TRUE, nbtype='lognormal', endstate=model.e.init$endstates)
-  model.p.refined <- segment(counts=rpmCounts.p, regions=regions.p, nstates=model.p.init$nstates, model=model.p.init, nthreads=nthreads,
-                             verbose_kfoots=TRUE, trainMode='viterbi', fix_emisP=TRUE, nbtype='lognormal', endstate=model.p.init$endstates)
+  segmentation.e.refinedTrans <- segment(counts=rpmCounts.e, regions=regions.e,  nstates=model.e.init$nstates, model=model.e.init, nthreads=nthreads,
+                                         verbose_kfoots=TRUE, trainMode='viterbi', fix_emisP=TRUE, nbtype='lognormal', endstate=model.e.init$endstates)
+  segmentation.p.refinedTrans <- segment(counts=rpmCounts.p, regions=regions.p, nstates=model.p.init$nstates, model=model.p.init, nthreads=nthreads,
+                                         verbose_kfoots=TRUE, trainMode='viterbi', fix_emisP=TRUE, nbtype='lognormal', endstate=model.p.init$endstates)
   
+  # add labels and colors to model objects
+  segmentation.e.refinedTrans$model$labels <- c(paste0('E_N1.', 1:length(nucStates.e)), paste0('E_A.', 1:length(accStates.e)), paste0('E_N2.', 1:length(nucStates.e)))
+  segmentation.p.refinedTrans$model$labels <- c(paste0('P_N1.', 1:length(nucStates.p)), paste0('P_A.', 1:length(accStates.p)), paste0('P_N2.', 1:length(nucStates.p)))
+  model.bg$labels <- paste0('bg', 1:model.bg$nstates)
+  segmentation.e.refinedTrans$model$colors <- c(rev(tail(brewer.pal(9,'Greens')[-c(8,9)], length(nucStates.e))),
+                                                colorRampPalette(brewer.pal(9,'YlOrBr')[2:4])(length(accStates.e)),
+                                                rev(tail(brewer.pal(9,'Greens')[-c(8,9)], length(nucStates.e))))
+  segmentation.p.refinedTrans$model$colors <- c(rev(tail(brewer.pal(9,'Reds')[-9], length(nucStates.p))),
+                                                colorRampPalette(brewer.pal(9,'YlOrBr')[2:4])(length(accStates.p)),
+                                                rev(tail(brewer.pal(9,'Reds')[-9], length(nucStates.p))))
+  model.bg$colors <- tail(colorRampPalette(brewer.pal(9,'Greys'))(20), model.bg$nstates)
   
   # combine fg / bg models
-  model <- combineFgBgModels(model.bg, model.e.refined, model.p.refined, genomefile)
+  model <- combineFgBgModels(model.bg, segmentation.e.refinedTrans$model, segmentation.p.refinedTrans$model, genomefile)
 
-  # apply model
-  cat("apply model\n")
-  segmentation <- segment(counts=rpmCounts, regions=regions, model=model, nstates=nstates,
-                          nthreads=nthreads, verbose_kfoots=TRUE, nbtype='lognormal', notrain=T)
-  
-  # produce 'report'
-  cat("producing report\n")
-  viterbi_segments <- statesToSegments(segmentation$viterbi, segmentation$segments) # create GRanges object with viterbi states
-  report(segments=viterbi_segments, model=segmentation$model, rdata=segmentation, outdir=outdir)
-  
-  return(segmentation)
+  return(model)
 }
 

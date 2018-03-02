@@ -32,7 +32,8 @@ Imports:
     bamsignals,
     edgeR,
 	rtracklayer,
-	Rsamtools
+	Rsamtools,
+	Matrix
 LinkingTo: Rcpp
 Suggests:
     testthat,

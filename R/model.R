@@ -268,14 +268,11 @@ initializeParams <- function(model, states.a, states.n){
   # initial probabilities: initial guess of equal probabilities for N1 states, 0 for the rest.
   model$initP <- matrix(c(rep(1/n.nuc, n.nuc), rep(0, n.acc+n.nuc)))
 
-  # add labels to model object and define endstates (N2*)
-  model$labels <- c(paste0('N1.', 1:n.nuc), paste0('A.', 1:n.acc), paste0('N2.', 1:n.nuc))
+  # define endstates (N2*)
   model$endstates <- states.n2
   
   return(model)
 }
-
-
 
 combineFgBgModels <- function(model.bg, model.e, model.p, genomefile){
   # this function combines a background, enhancer and promoter model, considering 'forbidden' transitions e.g. bg -> accessible
@@ -286,5 +283,10 @@ combineFgBgModels <- function(model.bg, model.e, model.p, genomefile){
   } else if (grepl('hg19', genomefile)) {suppressMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene)); txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
   } else stop('Error: unknown genome assembly name in genome file. known assemblies: mm9, mm10, hg19.')
   
-  ###TODO: FIRST IMPLEMENT getInitParams / refineFgModel
+  # combine emisP lists
+  model <- list(emisP=c(model.e$emisP, model.p$emisP, model.bg$emisP))
+  
+  # combine transP matrices
+  model$transP <- as.matrix(bdiag(model.e$transP, model.p$transP, model.bg$transP))
+  ###TODO: set bg->E/P_N1 and E/P_N2->bg transitions (loading promoters is annoying, can I estimate it differently?)
 }

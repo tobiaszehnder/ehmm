@@ -69,37 +69,10 @@ applyModel <- function(model=NULL, model.bg=NULL, model.e=NULL, model.p=NULL, st
   ########
   # TODO #
   ########
-  # rename this function to combineFgBg and remove the possibility to pass a model
   # write a separate function that gets passed a model (either from the global eHMM after this function or from the user directly)
-  # write a stateSelection parser
   # change kfoots: state_dict is not passed, pass escore flag instead from segment.R in case labels are passed that start with "E_*"
   
-  if (is.null(model)){
-    # parse stateSelection argument
-
-    # construct initial enhancer / promoter models 
-    model.e <- initializeParams(model.e, states.a.e, states.n.e)
-    model.e$labels <- paste0('E_', model.e$labels)
-    model.p <- initializeParams(model.p, states.a.p, states.n.p)
-    model.p$labels <- paste0('P_', model.p$labels)
-    
-    # define colors
-    ##
-    
-    # refine enhancer / promoter models (relearn on training data with keeping emisP fixed)
-    model.e.refined <- segment(counts=rpmCounts.e, regions=regions.e, model=model.e, nstates=model.e$nstates,
-                               nthreads=nthreads, verbose_kfoots=TRUE, nbtype='lognormal', endstate=model$endstates,
-                               colors=model$colors, labels=model$labels, trainMode='viterbi', fix_emisP=TRUE)
-    ####### --> THIS DOES NOT WORK YET (SOME ARGUMENTS ARE NOT ALLOWED TO PASS...?)
-    ####### --> ALSO, CHANGE endstate TO endstates (pass vector instead of integer)
-    ## same for model.p
-    
-    # combine fg / bg models
-    
-    model <- combineFgBgModels(model.bg, model.e.refined, model.p.refined, genomefile)
-  }
-  
-  # apply model
+  # segment regions
   cat("apply model\n")
   segmentation <- segment(counts=rpmCounts, regions=regions, model=model, nstates=nstates,
                           nthreads=nthreads, verbose_kfoots=TRUE, nbtype='lognormal', notrain=T)
