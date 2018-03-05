@@ -54,8 +54,6 @@ getSegmentOptions <- function(){
     help="Choose between viterbi and baum-welch training mode (default: baum-welch)"),
     list(arg="--fix_emisP", flag=TRUE,
     help="set this flag if training should only affect transition probabilities (emission probabilities will be fixed)"),
-    list(arg="--state_dict", type="character",
-    help="Path to the state dictionary, providing the information which states belong to enhancer or background.")
     # list(arg="--colors", type="character", parser=readColors,
     # help="Path to a text file containing one color per chromatin state.
     # Each color must be on a separate line, and they can be specified
@@ -149,7 +147,7 @@ advancedOpts <- c("tol","verbose","nbtype","init","init.nlev", "rmin", "endstate
 #' @export
 segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, collapseInitP=FALSE, 
                                     nthreads=1, split4speed=FALSE, maxiter=200, verbose_kfoots=FALSE, 
-                                    trainMode="baum-welch", fix_emisP=FALSE, state_dict=NULL, ...){
+                                    trainMode="baum-welch", fix_emisP=FALSE, ...){
     #REFORMAT KFOOTS OPTIONS
     kfootsOpts <- list(...)
     if (length(kfootsOpts)>0){
@@ -185,7 +183,7 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
     }
     
     if (!is.null(model)) {
-        #figure out the number of states
+        #figure out the number of states and the state labels
         if (!is.null(nstates) && nstates != dims$nstates) {
             warning("inconsistent 'nstates' given, using the value provided in the model")
             nstates <- dims$nstates
@@ -208,22 +206,11 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
         else kfootsOpts$k <- model$emisP
         kfootsOpts$trans <- model$transP
         kfootsOpts$initP <- model$initP
+        kfootsOpts$labels <- model$labels
     } else if (!is.null(nstates)){
         kfootsOpts$k <- nstates
     } else stop("provide either an existing HMM or a desired number of states")
     
-    #determine enhancer states from state_dict in case a model is provided
-    if (!is.null(state_dict)) {
-      statevec <- as.vector(read.table(state_dict)$V2)
-      states.e <- which(startsWith(statevec, 'E_'))
-      states.e.n1 <- which(startsWith(statevec, 'E_N1'))
-      states.bg <- which(startsWith(statevec, 'bg'))
-      states <- list(enhancer_states = states.e, enhancer_states_n1 = states.e.n1, bg_states = states.bg)
-    } else {
-      states <- list(enhancer_states=NULL, enhancer_states_n1=NULL, bg_states=NULL)
-    }
-    kfootsOpts$state_dict <- states
-
     kfootsOpts$maxiter <- maxiter
     #seqlens depend on the genomic regions
     kfootsOpts$seqlens <- rep(width(regions)/binsize, nmat)

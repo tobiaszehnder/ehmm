@@ -299,13 +299,13 @@ combineFgBgModels <- function(model.bg, model.e, model.p){
   A[states.bg, states.n1.e] <- enhancerFreq / (length(states.bg) * length(states.n1.e))
   A[states.bg, states.n1.p] <- promoterFreq / (length(states.bg) * length(states.n1.p))
   A[states.bg, states.bg] <- A[states.bg, states.bg] * (1 - rowSums(A[states.bg, c(states.n1.e, states.n1.p)]))
-  A[states.n2.e, states.bg] <- rowSums(as.matrix(A[states.n1.e, states.a.e])) / length(states.bg)
+  A[states.n2.e, states.bg] <- rowSums(A[states.n1.e, states.a.e]) / length(states.bg)
   A[states.n2.p, states.bg] <- rowSums(A[states.n1.p, states.a.p]) / length(states.bg)
   A[states.n2.e, states.n2.e] <- A[states.n2.e, states.n2.e] * (1 - rowSums(A[states.n2.e, states.bg]))
   A[states.n2.p, states.n2.p] <- A[states.n2.p, states.n2.p] * (1 - rowSums(A[states.n2.p, states.bg]))
   
   # set uniform initial probs for 'allowed' states (bg, N1)
-  I <- rep(0,nstates)
+  I <- matrix(rep(0,nstates))
   I[c(states.n1.e, states.n1.p, states.bg)] <- 1 / length(c(states.n1.e, states.n1.p, states.bg))
   
   # create model object

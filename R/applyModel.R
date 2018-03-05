@@ -12,23 +12,12 @@ getApplyModelOptions <- function(){
          the count matrix for later analyses."),
     list(arg="--outdir", type="character", required=TRUE,
          help="Path to the output directory."),
-    list(arg="--genome", type="character", required=TRUE, parser=readRegions,
-         help="Path to the .genome file"),
-    list(arg="--stateSelection", type="character", vectorial=TRUE,
-         help="String of state-numbers in the order of
-         accessibleEnhancer nucleosomeEnhancer accessiblePromoter nucleosomePromoter.
-         States within a group are comma-separated, groups are space-separated.
-         Example: --stateSelection 1,2 5,6 3,4 6,10"),
     list(arg="--model", type="character", parser=readModel,
-         help="Path to the file with the parameters of the HMM."),
-    list(arg="--model.bg", type="character", parser=readModel,
-         help="Path to the file with the parameters of the HMM."),
-    list(arg="--model.e", type="character", parser=readModel,
-         help="Path to the file with the parameters of the HMM."),
-    list(arg="--model.p", type="character", parser=readModel,
          help="Path to the file with the parameters of the HMM."),
     list(arg="--nthreads", type="integer", default=formals(applyModel)$nthreads,
          help="Number of threads to be used"),
+    list(arg="--learnTrans", flag=TRUE,
+         help="Whether or not to let the model learn the transition probabilities while fixing the emission parameters.")
     )
   opts
 }
@@ -48,39 +37,29 @@ applyModelCLI <- function(args, prog){
 #' from dividing the genomic regions into non-overlapping bins of equal size.
 #' The rows of the matrix must be named with the name of the marks and these names must be unique.
 #' @param model A list with the parameters that describe the HMM.
-#' @param model.bg A list with the parameters that describe the background HMM.
-#' @param model.e A list with the parameters that describe the enhancer HMM.
-#' @param model.p A list with the parameters that describe the promoter HMM.
 #' @param regions GRanges object containing the genomic regions of interest.
-#' @param genomefile path to the .genome file.
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
+#' @param learnTrans flag, whether or not to let the model learn the transition probabilities while fixing the emission parameters.
 #' @return A list with the following arguments:
 #' 
 #' @export
-applyModel <- function(model=NULL, model.bg=NULL, model.e=NULL, model.p=NULL, stateSelection,
-                       regions, rpmCounts, rpmCounts.e, rpmCounts.p, genomefile, outdir=".", nthreads=1){
+applyModel <- function(model=NULL, stateSelection, regions, rpmCounts, outdir=".", nthreads=1, learnTrans=FALSE){
   # check arguments and define variables
   if (is.null(c(model, model.bg, model.e, model.p))) {
     stop("no model was passed. pass paths to either full model or separate background, enhancer and promoter models")
   }
   binsize <- 100
-  
-  ########
-  # TODO #
-  ########
-  # write a separate function that gets passed a model (either from the global eHMM after this function or from the user directly)
-  # change kfoots: state_dict is not passed, pass escore flag instead from segment.R in case labels are passed that start with "E_*"
-  
+ 
   # segment regions
   cat("apply model\n")
-  segmentation <- segment(counts=rpmCounts, regions=regions, model=model, nstates=nstates,
-                          nthreads=nthreads, verbose_kfoots=TRUE, nbtype='lognormal', notrain=T)
+  segmentation <- segment(counts=rpmCounts, regions=regions, model=model, nstates=model$nstates, nthreads=nthreads,
+                          verbose_kfoots=TRUE, nbtype='lognormal', notrain=!learnTrans, fix_emisP=learnTrans)
   
   # produce 'report'
   cat("producing report\n")
   viterbi_segments <- statesToSegments(segmentation$viterbi, segmentation$segments) # create GRanges object with viterbi states
-  report(segments=viterbi_segments, model=segmentation$model, rdata=segmentation, outdir=outdir)
+  report(segments=viterbi_segments, model=model, rdata=segmentation, outdir=outdir, colors=model$colors, labels=model$labels)
   
   return(segmentation)
 }
