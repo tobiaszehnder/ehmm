@@ -274,19 +274,41 @@ initializeParams <- function(model, states.a, states.n){
   return(model)
 }
 
-combineFgBgModels <- function(model.bg, model.e, model.p, genomefile){
-  # this function combines a background, enhancer and promoter model, considering 'forbidden' transitions e.g. bg -> accessible
+combineFgBgModels <- function(model.bg, model.e, model.p){
+  # this function combines a background, enhancer and promoter model, setting 'forbidden' transitions to zoer, e.g. bg -> accessible
   
-  # parse genomefile
-  if (grepl('mm9', genomefile)) {suppressMessages(library(TxDb.Mmusculus.UCSC.mm9.knownGene)); txdb <- TxDb.Mmusculus.UCSC.mm9.knownGene
-  } else if (grepl('mm10', genomefile)) {suppressMessages(library(TxDb.Mmusculus.UCSC.mm10.knownGene)); txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-  } else if (grepl('hg19', genomefile)) {suppressMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene)); txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-  } else stop('Error: unknown genome assembly name in genome file. known assemblies: mm9, mm10, hg19.')
+  # combine labels, colors, set marks and nstates
+  labels <- c(model.e$labels, model.p$labels, model.bg$labels)
+  colors <- c(model.e$colors, model.p$colors, model.bg$colors)
+  nstates <- sum(model.e$nstates, model.p$nstates, model.bg$nstates)
+  marks <- model.e$marks
   
   # combine emisP lists
-  model <- list(emisP=c(model.e$emisP, model.p$emisP, model.bg$emisP))
+  E <- c(model.e$emisP, model.p$emisP, model.bg$emisP)
   
   # combine transP matrices
-  model$transP <- as.matrix(bdiag(model.e$transP, model.p$transP, model.bg$transP))
-  ###TODO: set bg->E/P_N1 and E/P_N2->bg transitions (loading promoters is annoying, can I estimate it differently?)
+  nEnhancers <- 399124 # Bernstein et al. 2012, ENCODE, https://www.nature.com/articles/nature11247: Number of regions with enhancer-like features.
+  nPromoters <- 70292 # Bernstein et al. 2012, ENCODE, https://www.nature.com/articles/nature11247: Number of regions with promoter-like features.
+  nBins <- 30000000 # hg19: 30'956'738, mm10: 27'255'182
+  enhancerFreq <- nEnhancers / nBins
+  promoterFreq <- nPromoters / nBins
+  states.n1.e <- which(startsWith(labels, 'E_N1')); states.a.e <- which(startsWith(labels, 'E_A')); states.n2.e <- which(startsWith(labels, 'E_N2'))
+  states.n1.p <- which(startsWith(labels, 'P_N1')); states.a.p <- which(startsWith(labels, 'P_A')); states.n2.p <- which(startsWith(labels, 'P_N2'))
+  states.bg <- which(startsWith(labels, 'bg'))
+  A <- as.matrix(bdiag(model.e$transP, model.p$transP, model.bg$transP))
+  A[states.bg, states.n1.e] <- enhancerFreq / (length(states.bg) * length(states.n1.e))
+  A[states.bg, states.n1.p] <- promoterFreq / (length(states.bg) * length(states.n1.p))
+  A[states.bg, states.bg] <- A[states.bg, states.bg] * (1 - rowSums(A[states.bg, c(states.n1.e, states.n1.p)]))
+  A[states.n2.e, states.bg] <- rowSums(as.matrix(A[states.n1.e, states.a.e])) / length(states.bg)
+  A[states.n2.p, states.bg] <- rowSums(A[states.n1.p, states.a.p]) / length(states.bg)
+  A[states.n2.e, states.n2.e] <- A[states.n2.e, states.n2.e] * (1 - rowSums(A[states.n2.e, states.bg]))
+  A[states.n2.p, states.n2.p] <- A[states.n2.p, states.n2.p] * (1 - rowSums(A[states.n2.p, states.bg]))
+  
+  # set uniform initial probs for 'allowed' states (bg, N1)
+  I <- rep(0,nstates)
+  I[c(states.n1.e, states.n1.p, states.bg)] <- 1 / length(c(states.n1.e, states.n1.p, states.bg))
+  
+  # create model object
+  model <- list(nstates=nstates, marks=marks, emisP=E, transP=A, initP=I, labels=labels, colors=colors)
+  return(model)
 }

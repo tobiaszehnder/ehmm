@@ -12,8 +12,6 @@ getConstructModelOptions <- function(){
          the count matrix for later analyses."),
     list(arg="--outdir", type="character", required=TRUE,
          help="Path to the output directory."),
-    list(arg="--genome", type="character", required=TRUE, parser=readRegions,
-         help="Path to the .genome file"),
     list(arg="--states_accessible_enhancer", type="character", required=TRUE, vectorial=TRUE,
          help="String of comma-separated state-numbers for enhancer accessibility states."),
     list(arg="--states_nucleosome_enhancer", type="character", required=TRUE, vectorial=TRUE,
@@ -60,15 +58,13 @@ constructModelCLI <- function(args, prog){
 #' @param accStates.p String of comma-separated state-numbers for promoter accessibility states.
 #' @param nucStates.p String of comma-separated state-numbers for promoter nucleosome states.
 #' @param regions GRanges object containing the genomic regions of interest.
-#' @param genomefile path to the .genome file.
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
 #' @return A list with the following arguments:
 #' 
 #' @export
-constructModel <- function(model.bg=NULL, model.e=NULL, model.p=NULL, rpmCounts.e, rpmCounts.p,
-                       regions.e, regions.p, accStates.e, nucStates.e, accStates.p, nucStates.p,
-                       genomefile, outdir=".", nthreads=1){
+constructModel <- function(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p, regions.e, regions.p, accStates.e, nucStates.e,
+                           accStates.p, nucStates.p, outdir=".", nthreads=1){
   # check arguments and define variables
   if (is.null(c(model, model.bg, model.e, model.p))) {
     stop("no model was passed. pass paths to either full model or separate background, enhancer and promoter models")
@@ -80,13 +76,7 @@ constructModel <- function(model.bg=NULL, model.e=NULL, model.p=NULL, rpmCounts.
   nucStates.e <- as.integer(strsplit(nucStates.e, ',')[[1]])
   accStates.p <- as.integer(strsplit(accStates.p, ',')[[1]])
   nucStates.p <- as.integer(strsplit(nucStates.p, ',')[[1]])
-  
-  ########
-  # TODO #
-  ########
-  # write a separate function that gets passed a model (either from the global eHMM after this function or from the user directly)
-  # change kfoots: state_dict is not passed, pass escore flag instead from segment.R in case labels are passed that start with "E_*"
-  
+ 
   # construct initial enhancer / promoter models 
   model.e.init <- initializeParams(model.e, accStates.e, nucStates.e)
   model.p.init <- initializeParams(model.p, accStates.p, nucStates.p)
@@ -110,7 +100,7 @@ constructModel <- function(model.bg=NULL, model.e=NULL, model.p=NULL, rpmCounts.
   model.bg$colors <- tail(colorRampPalette(brewer.pal(9,'Greys'))(20), model.bg$nstates)
   
   # combine fg / bg models
-  model <- combineFgBgModels(model.bg, segmentation.e.refinedTrans$model, segmentation.p.refinedTrans$model, genomefile)
+  model <- combineFgBgModels(model.bg, segmentation.e.refinedTrans$model, segmentation.p.refinedTrans$model)
 
   return(model)
 }
