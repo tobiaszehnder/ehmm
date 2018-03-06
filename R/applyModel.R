@@ -12,7 +12,7 @@ getApplyModelOptions <- function(){
          the count matrix for later analyses."),
     list(arg="--outdir", type="character", required=TRUE,
          help="Path to the output directory."),
-    list(arg="--model", type="character", parser=readModel,
+    list(arg="--model", type="character", required=TRUE, parser=readModel,
          help="Path to the file with the parameters of the HMM."),
     list(arg="--nthreads", type="integer", default=formals(applyModel)$nthreads,
          help="Number of threads to be used"),
@@ -44,11 +44,8 @@ applyModelCLI <- function(args, prog){
 #' @return A list with the following arguments:
 #' 
 #' @export
-applyModel <- function(model=NULL, stateSelection, regions, rpmCounts, outdir=".", nthreads=1, learnTrans=FALSE){
+applyModel <- function(model, regions, rpmCounts, outdir=".", nthreads=1, learnTrans=FALSE){
   # check arguments and define variables
-  if (is.null(c(model, model.bg, model.e, model.p))) {
-    stop("no model was passed. pass paths to either full model or separate background, enhancer and promoter models")
-  }
   binsize <- 100
  
   # segment regions

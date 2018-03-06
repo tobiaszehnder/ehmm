@@ -183,7 +183,7 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
     }
     
     if (!is.null(model)) {
-        #figure out the number of states and the state labels
+        #figure out the number of states
         if (!is.null(nstates) && nstates != dims$nstates) {
             warning("inconsistent 'nstates' given, using the value provided in the model")
             nstates <- dims$nstates
@@ -206,9 +206,11 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
         else kfootsOpts$k <- model$emisP
         kfootsOpts$trans <- model$transP
         kfootsOpts$initP <- model$initP
-        kfootsOpts$labels <- model$labels
+        if (!is.null(model$labels)){ kfootsOpts$labels <- model$labels
+        } else kfootsOpts$labels <- as.character(1:nstates)
     } else if (!is.null(nstates)){
         kfootsOpts$k <- nstates
+        kfootsOpts$labels <- as.character(1:nstates)
     } else stop("provide either an existing HMM or a desired number of states")
     
     kfootsOpts$maxiter <- maxiter

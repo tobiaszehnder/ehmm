@@ -12,13 +12,13 @@ getConstructModelOptions <- function(){
          the count matrix for later analyses."),
     list(arg="--outdir", type="character", required=TRUE,
          help="Path to the output directory."),
-    list(arg="--states_accessible_enhancer", type="character", required=TRUE, vectorial=TRUE,
+    list(arg="--accStates.e", type="character", required=TRUE, parser=readStates,
          help="String of comma-separated state-numbers for enhancer accessibility states."),
-    list(arg="--states_nucleosome_enhancer", type="character", required=TRUE, vectorial=TRUE,
+    list(arg="--nucStates.e", type="character", required=TRUE, parser=readStates,
          help="String of comma-separated state-numbers for enhancer nucleosome states."),
-    list(arg="--states_accessible_promoter", type="character", required=TRUE, vectorial=TRUE,
+    list(arg="--accStates.p", type="character", required=TRUE, parser=readStates,
          help="String of comma-separated state-numbers for promoter accessibility states."),
-    list(arg="--states_nucleosome_promoter", type="character", required=TRUE, vectorial=TRUE,
+    list(arg="--nucStates.p", type="character", required=TRUE, parser=readStates,
          help="String of comma-separated state-numbers for promoter nucleosome states."),
     list(arg="--model.bg", type="character", parser=readModel,
          help="Path to the file with the parameters of the HMM."),
@@ -71,13 +71,7 @@ constructModel <- function(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p,
   }
   binsize <- 100
   
-  # parse selected states
-  accStates.e <- as.integer(strsplit(accStates.e, ',')[[1]])
-  nucStates.e <- as.integer(strsplit(nucStates.e, ',')[[1]])
-  accStates.p <- as.integer(strsplit(accStates.p, ',')[[1]])
-  nucStates.p <- as.integer(strsplit(nucStates.p, ',')[[1]])
- 
-  # construct initial enhancer / promoter models 
+  # construct initial enhancer / promoter models
   model.e.init <- initializeParams(model.e, accStates.e, nucStates.e)
   model.p.init <- initializeParams(model.p, accStates.p, nucStates.p)
   
@@ -105,3 +99,7 @@ constructModel <- function(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p,
   return(model)
 }
 
+readStates <- function(stateString){
+  # This function parses a comma-separated string of state numbers to a integer-vector.
+  return(as.integer(strsplit(stateString, ',')[[1]]))
+}

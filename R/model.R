@@ -250,26 +250,26 @@ initializeParams <- function(model, states.a, states.n){
   n.acc <- length(states.a)
   n.nuc <- length(states.n)
   model$nstates <- n.acc + 2 * n.nuc
-  states.n1 <- 1:n.nuc
-  states.a <- 1:n.acc + max(states.n1)
-  states.n2 <- states.n1 + max(states.a)
+  newStates.n1 <- 1:n.nuc
+  newStates.a <- 1:n.acc + max(newStates.n1)
+  newStates.n2 <- newStates.n1 + max(newStates.a)
   
   # emission probabilities: adopted from the given model
   model$emisP <- model$emisP[c(states.n, states.a, states.n)]
   
   # transition probabilities: initial guess independent from the given model. will be refined (learned) in the next step.
   model$transP <- matrix(0, nrow=model$nstates, ncol=model$nstates)
-  model$transP[states.n1, states.n1] <- 0.5 / n.nuc
-  model$transP[states.n1, states.a] <- 0.5 / n.acc
-  model$transP[states.a, states.a] <- 0.9 / n.acc
-  model$transP[states.a, states.n2] <- 0.1 / n.nuc
-  model$transP[states.n2, states.n2] <- 1 / n.nuc
+  model$transP[newStates.n1, newStates.n1] <- 0.5 / n.nuc
+  model$transP[newStates.n1, newStates.a] <- 0.5 / n.acc
+  model$transP[newStates.a, newStates.a] <- 0.9 / n.acc
+  model$transP[newStates.a, newStates.n2] <- 0.1 / n.nuc
+  model$transP[newStates.n2, newStates.n2] <- 1 / n.nuc
   
   # initial probabilities: initial guess of equal probabilities for N1 states, 0 for the rest.
   model$initP <- matrix(c(rep(1/n.nuc, n.nuc), rep(0, n.acc+n.nuc)))
 
   # define endstates (N2*)
-  model$endstates <- states.n2
+  model$endstates <- newStates.n2
   
   return(model)
 }
