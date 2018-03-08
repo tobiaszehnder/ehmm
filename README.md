@@ -4,7 +4,7 @@ Enhancer prediction in R. For a full description and for citing us, see the foll
 
 > T Zehnder, P Benner, M Vingron (2018).
 
-For using eHMM from the command line, you can find the full manual [HERE!](https://cdn.rawgit.com/lamortenera/epicseg/master/inst/manual.html)
+For using eHMM from the command line, you can find the full manual [HERE!](/home/zehnder/programs/github/ehmm/inst/manual.html)
 
 
 ### Installation

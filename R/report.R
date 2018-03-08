@@ -114,7 +114,7 @@ report <- function(segments, model, outdir=".",
 
     #DOING REPORT
     doc <- c(
-        htmlHeader("EpiCSeg report"), 
+        htmlHeader("eHMM report"), 
         "<center>",
         reportRdata(rdata, outdir, prefix),
         reportModel(model, labels, colors, outdir, prefix),

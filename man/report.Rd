@@ -46,4 +46,3 @@ Produce an html report of a segmentation
 A web page will be created with plots linked to
     tables in text format.
 }
-

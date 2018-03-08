@@ -41,4 +41,3 @@ A count matrix where the rows are the different marks
 \description{
 Make a count matrix from a GRanges object and a list of bam files
 }
-

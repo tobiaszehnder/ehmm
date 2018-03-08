@@ -11,6 +11,5 @@ epigenomic data. There is an R interface as well as a
 command line interface.
 }
 \author{
-Alessandro Mammana \email{mammana@molgen.mpg.de}
+Tobias Zehnder \email{zehnder@molgen.mpg.de}
 }
-

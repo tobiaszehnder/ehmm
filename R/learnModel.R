@@ -12,20 +12,18 @@ getLearnModelOptions <- function(){
          the count matrix for later analyses."),
     list(arg="--nstates", type="integer", required=TRUE,
          help="Number of states to use for training"),
-    list(arg="--outdir", type="character", required=TRUE,
+    list(arg="--outdir", type="character",
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(learnModel)$nthreads,
          help="Number of threads to be used"),
     list(arg="--pseudoCount", type="integer",
-         help="Pseudo-count added to read-counts.
-         This is necessary because log-counts are calculated in order to
-         fit a log-normal distribution."),
+         help="Pseudo-count added to read-counts for log-normal fit. Default = 1.")
     )
   opts
 }
 
 learnModelCLI <- function(args, prog){
-  learnModelOptions <- getlearnModelOptions()
+  learnModelOptions <- getLearnModelOptions()
   #parse the options
   opt <- parseArgs(learnModelOptions, args, prog)
   #call 'learnModel'
@@ -46,7 +44,7 @@ learnModelCLI <- function(args, prog){
 #' @export
 learnModel <- function(bamdir, regions, nstates, outdir=".", nthreads=1, pseudoCount=1){
   # check arguments and define variables
-  featurePaths <- normalizePath(paste(bamdir, list.files(path=bamdir, pattern = "\\.bam$"), sep='/'))
+  featurePaths <- paste(bamdir, list.files(path=bamdir, pattern = "\\.bam$"), sep='/')
   features <- gsub(".bam", "", list.files(path=bamdir, pattern = "\\.bam$"))
   if (length(features) == 0) stop("bam directory is empty")
   binsize <- 100
@@ -57,7 +55,6 @@ learnModel <- function(bamdir, regions, nstates, outdir=".", nthreads=1, pseudoC
   bamtab <- makeBamtab(paste0(features, ":", featurePaths), shift=shift)
   
   # create count matrix
-  cat("calculating count matrix\n")
   counts <- getcounts(regions, bamtab, binsize=binsize, nthreads=nthreads) + pseudoCount
   
   # rpm-normalize count matrix

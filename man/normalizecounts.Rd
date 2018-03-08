@@ -33,4 +33,3 @@ Given a list of count matrices, corresponding rows across the different count
 matrices are made comparable with a normalization procedure. 
 Rows correspond if they have the same row name in all count matrices.
 }
-

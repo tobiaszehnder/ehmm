@@ -6,7 +6,8 @@
 \usage{
 segment(counts, regions, nstates = NULL, model = NULL, notrain = FALSE,
   collapseInitP = FALSE, nthreads = 1, split4speed = FALSE,
-  maxiter = 200, ...)
+  maxiter = 200, verbose_kfoots = FALSE, trainMode = "baum-welch",
+  fix_emisP = FALSE, ...)
 }
 \arguments{
 \item{counts}{Count matrix or list of count matrices matching with the 
@@ -68,4 +69,3 @@ A list with the following arguments:
 \description{
 Learn a model and produce a segmentation
 }
-

@@ -182,6 +182,14 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
         if (is.null(dims$nstates)) model <- NULL
     }
     
+    # assign labels and colors if not given
+    if (is.null(model) || is.null(model$labels)){
+      labels <- as.character(1:nstates)
+    } else labels <- model$labels
+    if (is.null(model) || is.null(model$colors)){
+      colors <- pickColors(nstates, NULL)
+    } else colors <- model$colors
+
     if (!is.null(model)) {
         #figure out the number of states
         if (!is.null(nstates) && nstates != dims$nstates) {
@@ -206,8 +214,7 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
         else kfootsOpts$k <- model$emisP
         kfootsOpts$trans <- model$transP
         kfootsOpts$initP <- model$initP
-        if (!is.null(model$labels)){ kfootsOpts$labels <- model$labels
-        } else kfootsOpts$labels <- as.character(1:nstates)
+        kfootsOpts$labels <- labels
     } else if (!is.null(nstates)){
         kfootsOpts$k <- nstates
         kfootsOpts$labels <- as.character(1:nstates)
@@ -240,10 +247,11 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
     #if (kfootsOpts$nbtype != "lognormal" & is.null(model) & is.null(kfootsOpts$endstate)) fit <- reorderFitStates(fit)
     #MAKE MODELS (only if a model was trained. Otherwise (in case --notrain flag is set), leave the given model)
     if (!notrain){
-        model <- list(nstates=length(fit$models), marks=rownames(clist[[1]]), 
-                       emisP=fit$models, transP=fit$trans, initP=fit$initP)
+        model <- list(nstates=length(fit$models), marks=rownames(clist[[1]]),
+                      emisP=fit$models, transP=fit$trans, initP=fit$initP,
+                      labels=labels, colors=colors)
     }
-
+    
     if (nmat > 1){
         #format the data appropriately
         nbinsSingle <- ncol(kfootsOpts$counts)/nmat

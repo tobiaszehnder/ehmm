@@ -11,7 +11,7 @@
 #return a list(nstates, nmarks)
 validateModel <- function(model, strict=FALSE, type="dep"){
   if (is.null(model)) stop("NULL is not a valid model")
-    optArgs <- c("nstates", "marks", "emisP", "transP", "initP")
+    optArgs <- c("nstates", "marks", "labels", "colors", "emisP", "transP", "initP")
     if (is.null(names(model))) stop("model's element must be named")
     if (!all(names(model) %in% optArgs)) warning("some arguments will be ignored (incorrect naming?)")
     if (!strict && !all(optArgs %in% names(model))) stop(paste("a model requires the following fields:", paste(optArgs, collapse=", ")))
@@ -180,6 +180,16 @@ readModel <- function(path){
         marks <- ifHasField(txt, "marks", 1, function(lines){
             strsplit(lines, "\t")[[1]]
         })
+        #parsing labels
+        labels <- NULL
+        labels <- ifHasField(txt, "labels", 1, function(lines){
+            strsplit(lines, ",")[[1]]
+        })
+        #parsing colors
+        colors <- NULL
+        colors <- ifHasField(txt, "colors", 1, function(lines){
+          strsplit(lines, ",")[[1]]
+        })
         #parsing emisP
         firstline.E <- which(txt == 'emisP') + 1
         if (grepl('\\|', strsplit(txt[firstline.E], '\t')[[1]][1])) modeltype <- 'lognormal' else modeltype <- 'negmultinom'
@@ -208,6 +218,8 @@ readModel <- function(path){
         initP <- ifHasField(txt, "initP", nstates, parseRows)
         
         model <- list(nstates=nstates, marks=marks, emisP=emisP, transP=transP, initP=initP)
+        if (!is.null(labels)) model$labels <- labels
+        if (!is.null(colors)) model$colors <- colors
         validateModel(model, strict=TRUE, type=modeltype)
     }, error=function(e){
         stop(paste0("Unable to parse the model file:\n", e$message))
@@ -222,6 +234,10 @@ writeModel <- function(model, path, type){
     txt <- list()
     #nstates to strings
     if (!is.null(model$nstates)) txt$nstates <- c("nstates", model$nstates)
+    #labels to strings
+    if(!is.null(model$labels)) txt$labels <- c("labels", paste0(model$labels, collapse=","))
+    #colors to strings
+    if(!is.null(model$colors)) txt$colors <- c("colors", paste0(model$colors, collapse=","))
     #marks to strings
     if (!is.null(model$marks)) txt$marks <- c("marks", paste0(model$marks, collapse="\t"))
     #emisP to strings

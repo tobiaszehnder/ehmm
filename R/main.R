@@ -6,12 +6,13 @@
 #'
 #' @name ehmm
 #' @docType package
-#' @author Alessandro Mammana \email{mammana@@molgen.mpg.de}
+#' @author Tobias Zehnder \email{zehnder@@molgen.mpg.de}
 #' @useDynLib ehmm
 #' @importFrom grDevices col2rgb colorRamp dev.new dev.off pdf png rgb
 #' @importFrom graphics abline axis barplot legend lines mtext par plot points polygon strheight strwidth
 #' @importFrom stats dist dnbinom dpois pnbinom ppois setNames
 #' @importFrom utils read.table write.table
+#' @importFrom Matrix bdiag
 #' @import parallel
 #' @import S4Vectors
 #' @import methods
@@ -22,6 +23,8 @@
 #' @import kfoots
 #' @import bamsignals
 #' @import edgeR
+#' @import Rsamtools
+#' @import rtracklayer
 #' @import Rsamtools
 NULL
 
@@ -39,8 +42,8 @@ getLauncher <- function(dest="ehmm.R"){
     if (tryCatch("ehmm" %in% devtools::dev_packages(), error=function(e) FALSE)){
         devtoolsPath <- find.package("devtools")
         loadDevtools <- paste0("library(devtools, lib.loc=\"", dirname(devtoolsPath), "\")")
-        loadEpicseg <- paste0("devtools::load_all(\"", ehmmPath, "\", quiet=TRUE)")
-        loadLibs <- paste(sep="\n", loadDevtools, loadEpicseg)
+        load_ehmm <- paste0("devtools::load_all(\"", ehmmPath, "\", quiet=TRUE)")
+        loadLibs <- paste(sep="\n", loadDevtools, load_ehmm)
     } else {
         loadLibs <- paste0("library(ehmm, lib.loc=\"", dirname(path.package("ehmm")), "\")")
     }
@@ -72,17 +75,25 @@ print_CLI <- function(prog, subprograms){
 #reportCLI, in the file report.R
 #getcountsCLI, in the file getcounts.R
 #normalizecountsCLI, in the file normalizecounts.R
+#learnModelCLI, in the file learnModel.R
+#constructModelCLI, in the file constructModel.R
+#applyModelCLI, in the file applyModel.R
 getCLIsubprograms <- function(){list(
-    getcounts=list(desc="Produce a counts matrix from several bam files", 
-    fun=getcountsCLI, cliargs=getGetcountsOptions),
-    normalizecounts=list(desc="Normalize several count matrices", 
-    fun=normalizecountsCLI, cliargs=getNormalizeCountsOptions),
-    segment=list(desc="Produce a segmentation and a report",
-    fun=segmentCLI, cliargs=getSegmentOptions),
-    report=list(desc="Produce a report for a given segmentation", 
-    fun=reportCLI, cliargs=getReportOptions),
-    learnModel=list(desc="Learn a enhancer Hidden Markov Model",
-    fun=learnModelCLI, cliargs=getLearnModelOptions))}
+    # getcounts=list(desc="Produce a counts matrix from several bam files",
+    #                fun=getcountsCLI, cliargs=getGetcountsOptions),
+    # normalizecounts=list(desc="Normalize several count matrices",
+    #                      fun=normalizecountsCLI, cliargs=getNormalizeCountsOptions),
+    # segment=list(desc="Produce a segmentation and a report",
+    #              fun=segmentCLI, cliargs=getSegmentOptions),
+    # report=list(desc="Produce a report for a given segmentation",
+    #             fun=reportCLI, cliargs=getReportOptions),
+    learnModel=list(desc="Learn an unsupervised HMM for a given set of genomic regions and feature bam files",
+                    fun=learnModelCLI, cliargs=getLearnModelOptions),
+    constructModel=list(desc="Construct a full model by combining given models for background, enhancers and promoters",
+                        fun=constructModelCLI, cliargs=getConstructModelOptions),
+    applyModel=list(desc="Produce a segmentation based on a given model and extract enhancer / promoter elemenents",
+                    fun=applyModelCLI, cliargs=getApplyModelOptions)
+    )}
     
 CLI <- function(args, prog){
     CLIsubprograms <- getCLIsubprograms()

@@ -22,4 +22,3 @@ of the provided regions will become respectively the next number of the form
 \code{binsize*k + 1} and the previous number of the form \code{binsize*k},
 so that the refined regions will always be contained in the original ones.
 }
-

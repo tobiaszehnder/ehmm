@@ -33,9 +33,10 @@ Imports:
     edgeR,
 	rtracklayer,
 	Rsamtools,
-	Matrix
+	Matrix,
+	GenomeInfoDb
 LinkingTo: Rcpp
 Suggests:
     testthat,
     knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
