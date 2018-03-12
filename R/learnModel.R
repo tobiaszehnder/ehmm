@@ -43,27 +43,9 @@ learnModelCLI <- function(args, prog){
 #' 
 #' @export
 learnModel <- function(bamdir, regions, nstates, outdir=".", nthreads=1, pseudoCount=1){
-  # check arguments and define variables
-  featurePaths <- paste(bamdir, list.files(path=bamdir, pattern = "\\.bam$"), sep='/')
-  features <- gsub(".bam", "", list.files(path=bamdir, pattern = "\\.bam$"))
-  if (length(features) == 0) stop("bam directory is empty")
-  binsize <- 100
   
-  # make bamtab object
-  # default shift is 75. set to 0 in case of ATAC / DHS
-  shift <- sapply(tolower(features), function(f) ifelse(any(sapply(c('atac', 'dhs', 'dnase'), function(s) grepl(s, f))), 0, 75))
-  bamtab <- makeBamtab(paste0(features, ":", featurePaths), shift=shift)
-  
-  # create count matrix
-  counts <- getcounts(regions, bamtab, binsize=binsize, nthreads=nthreads) + pseudoCount
-  
-  # rpm-normalize count matrix
-  rpmCounts <- rpmNormalizeCounts(counts, bamtab, binsize, pseudoCount)
-
-  # write count matrix
-  target <- paste(outdir, 'countmatrix_rpmNormalized.txt', sep='/')
-  cat(sep="", "writing count matrix to the file '", target, "'\n")
-  writeCountsDouble(rpmCounts, target)
+  # calculate, rpm-normalize and save count matrix
+  rpmCounts <- getRpmCounts(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount)
   
   # learn unsupervised model
   #TODO: implement fast learning on random 20mb subset..?

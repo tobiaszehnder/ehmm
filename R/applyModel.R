@@ -1,14 +1,16 @@
 getApplyModelOptions <- function(){
   opts <- list(
-    list(arg="--rpmCounts", type="character", required=TRUE, parser=readCounts,
-         help="Path to the count matrix."),
     list(arg="--regions", type="character", required=TRUE, parser=readRegions,
          help="Path to the BED file with the genomic regions of interest."),
     list(arg="--model", type="character", required=TRUE, parser=readModel,
          help="Path to the file with the parameters of the HMM."),
     list(arg="--genomeSize", type="character", required=TRUE, parser=readGenomeSize,
          help="Path to a two-column file indicating chromosome names and sizes."),
-    list(arg="--outdir", type="character", required=TRUE,
+    list(arg="--rpmCounts", type="character", parser=readCounts,
+         help="Path to the count matrix. If not given, it will be calculated and written to the output directory."),
+    list(arg="--bamdir", type="character",
+         help="Path to the directory with the bam-files. Only required if rpmCounts is not given."),
+    list(arg="--outdir", type="character",
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(applyModel)$nthreads,
          help="Number of threads to be used."),
@@ -28,23 +30,31 @@ applyModelCLI <- function(args, prog){
 
 #' Produce a segmentation based on a given model and extract enhancer / promoter elemenents.
 #'
+#' @param regions GRanges object containing the genomic regions of interest.
+#' @param model A list with the parameters that describe the HMM.
+#' @param genomeSize vector with chromosome lengths.
 #' @param rpmCounts Count matrix matching with the \code{regions} parameter.
 #' Each row of the matrix represents a mark and each column a bin resulting
 #' from dividing the genomic regions into non-overlapping bins of equal size.
 #' The rows of the matrix must be named with the name of the marks and these names must be unique.
-#' @param regions GRanges object containing the genomic regions of interest.
-#' @param model A list with the parameters that describe the HMM.
-#' @param genomeSize vector with chromosome lengths.
+#' If not given, it will be calculated and written to the output directory.
+#' @param bamdir path to the bam-file directory. Only required if rpmCounts is not given.
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
 #' @param learnTrans flag, whether or not to let the model learn the transition probabilities while fixing the emission parameters.
 #' @return A list with the following arguments:
 #' 
 #' @export
-applyModel <- function(rpmCounts, regions, model, genomeSize, outdir=".", nthreads=1, learnTrans=FALSE){
+applyModel <- function(regions, model, genomeSize, rpmCounts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE){
   # check arguments and define variables
   binsize <- 100
   
+  # if not given, calculate, rpm-normalize and save count matrix
+  if (is.null(rpmCounts)){
+    if (is.null(bamdir)) stop('either pass a count matrix or specify a bam-file directory to calculate it from')
+    rpmCounts <- getRpmCounts(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount)
+  }
+
   # segment regions
   cat("apply model\n")
   segmentation <- segment(counts=rpmCounts, regions=regions, model=model, nstates=model$nstates, nthreads=nthreads,
