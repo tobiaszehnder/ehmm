@@ -73,13 +73,13 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   viterbi_segments <- statesToSegments(segmentation$viterbi, segmentation$segments) # create GRanges object with viterbi states
   report(segments=viterbi_segments, model=model, rdata=segmentation, outdir=outdir, colors=model$colors, labels=model$labels)
   
-  # tile regions into 100 bp windows, assign viterbi states and escore, write to file
+  # tile regions into 100 bp windows, assign viterbi states and score, write to file
   cat("extract enhancer / promoter elements\n")
   labels <- segmentation$model$labels
   gr <- tileRegions(regions, width=100)
   GenomeInfoDb:::seqlengths(gr) <- genomeSize[GenomeInfoDb:::seqlevels(gr)]
   gr$name <- labels[segmentation$viterbi]
-  gr$score <- segmentation$escore
+  gr$score <- segmentation$score$e
   export.bw(gr, paste(outdir, 'enhancer.scores.bw', sep='/'))
   export.bed(gr, paste(outdir, 'enhancer.scores.bed', sep='/'))
   # extract enhancer regions, allocate maximum score and write to file
@@ -90,7 +90,10 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
     e <- aggScore(reduce(e.tiled), e.tiled, 'max')
     export.bed(e, enhancerBedfile)
   }
-  # extract promoter regions and write to file
+  # extract promoter regions, allocate maximum score and write to file
+  gr$score <- segmentation$score$p
+  export.bw(gr, paste(outdir, 'promoter.scores.bw', sep='/'))
+  export.bed(gr, paste(outdir, 'promoter.scores.bed', sep='/'))
   promoterBedfile <- paste(outdir, 'promoterRegions.bed', sep='/')
   p.tiled <- gr[startsWith(gr$name, 'P')]
   p <- reduce(p.tiled)

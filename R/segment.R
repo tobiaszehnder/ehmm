@@ -271,7 +271,7 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
     
     list(segments=segms, model=model, posteriors=fit$posteriors, states=fit$clusters,
          viterbi=fit$viterbi$vpath, loglik=fit$loglik, vscores=fit$viterbi$vscores,
-         lliks=fit$lliks, escore=fit$escore) #alpha=fit$alpha
+         lliks=fit$lliks, score=fit$score)
 }
 
 kfoots_error_handler <- function(err_msg, regions, binsize) {
