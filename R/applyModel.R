@@ -17,7 +17,9 @@ getApplyModelOptions <- function(){
     list(arg="--learnTrans", flag=TRUE,
          help="Whether or not to let the model learn the transition probabilities while fixing the emission parameters."),
     list(arg="--refCounts", type="character", parser=readCounts,
-         help="Path to the reference count matrix of the given model. If given, the counts of the query sample will be quantile-normalized to its distribution.")
+         help="Path to the count matrix of the reference model. If given, the counts of the query sample will be quantile-normalized to its distribution."),
+    list(arg="--refRegions", type="character", parser=readRegions,
+         help="Path to the BED file with the genomic regions of the reference model. Has to be given if refCounts and counts have different dimensions.")
   )
   opts
 }
@@ -44,12 +46,15 @@ applyModelCLI <- function(args, prog){
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
 #' @param learnTrans flag, whether or not to let the model learn the transition probabilities while fixing the emission parameters.
-#' @param refCounts Count matrix of the reference model with the same dimensions than counts.
+#' @param refCounts Count matrix of the reference model.
+#' @param refRegions GRanges object containing the genomic regions of the reference model.
+#' Has to be given if \code{refCounts} and \code{counts} have different dimensions.
 #' @return A list with the following arguments:
 #' 
 #' @export
-applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refCounts=NULL){
+applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refRegions=NULL, refCounts=NULL){
   # check arguments and define variables
+  if (!is.null(refCounts) && is.null(refRegions) && (dim(refCounts) != dim(counts))) stop('refCounts has different dimensions than counts. refRegions have to be stated')
   binsize <- 100
   
   # if not given, calculate and save count matrix
@@ -59,7 +64,12 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   }
   
   # if reference count matrix is given, quantile normalize query count matrix
-  if (!is.null(refCounts)){
+  # if query count matrix has different dimensions than the reference (i.e. the query regions are a subset of the reference whole-genome regions),
+  # calculate a query count matrix for the reference regions, create a 'count-dictionary' which is then used to determine the normalized query values
+  if (blabla){
+    #TODO: CONTINUE HERE: erst checken ob dim(refcounts) == dim(counts), und wenn nicht, dann counts.full berechnen,
+    # damit quantile normalisieren und dict schreiben, dann counts mit dict normalisieren
+    refCounts.full <- bla
     counts <- quantileNormalizeToReference(refCounts, counts)
   }
 
