@@ -76,7 +76,7 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   # tile regions into 100 bp windows, assign viterbi states and score, write to file
   cat("extract enhancer / promoter elements\n")
   labels <- segmentation$model$labels
-  gr <- tileRegions(regions, width=100)
+  gr <- do.call('c', tile(regions, width=100))
   GenomeInfoDb:::seqlengths(gr) <- genomeSize[GenomeInfoDb:::seqlevels(gr)]
   gr$name <- labels[segmentation$viterbi]
   gr$score <- segmentation$score$e
@@ -109,13 +109,13 @@ readGenomeSize <- function(genomeSize){
   return(sizes)
 }
 
-aggScore <- function(gr.reference, gr.tiled, func){
+aggScore <- function(gr.reference, gr.tiled, func, aggName=F){
   # this function aggregates the scores of a tiled GRanges object (gr.tiled) to the overlapping regions of a GRanges object with broad regions (gr.reference)
   # by either taking the mean, max or the product given the passed function argument.
   # Often, gr.reference is equal to reduce(gr.tiled).
   ov <- findOverlaps(gr.reference, gr.tiled)
   aggSc <- aggregate(gr.tiled$score[subjectHits(ov)], list(queryHits(ov)), get(func))
   gr.reference$score <- aggSc$x
-  if (!is.null(gr.tiled$name)) gr.reference$name <- aggregate(gr.tiled$name[subjectHits(ov)], list(queryHits(ov)), 'unique')$x
+  if (aggName && !is.null(gr.tiled$name)) gr.reference$name <- aggregate(gr.tiled$name[subjectHits(ov)], list(queryHits(ov)), 'unique')$x
   return(gr.reference)
 }
