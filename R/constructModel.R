@@ -6,10 +6,10 @@ getConstructModelOptions <- function(){
          help="Path to the file with the parameters of the enhancer HMM."),
     list(arg="--model.p", type="character", parser=readModel, required=TRUE,
          help="Path to the file with the parameters of the promoter HMM."),
-    list(arg="--rpmCounts.e", type="character", required=TRUE, parser=readCounts,
-         help="Path to the rpm-normalized countmatrix for the enhancer training regions."),
-    list(arg="--rpmCounts.p", type="character", required=TRUE, parser=readCounts,
-         help="Path to the rpm-normalized countmatrix for the promoter training regions."),
+    list(arg="--counts.e", type="character", required=TRUE, parser=readCounts,
+         help="Path to the countmatrix for the enhancer training regions."),
+    list(arg="--counts.p", type="character", required=TRUE, parser=readCounts,
+         help="Path to the countmatrix for the promoter training regions."),
     list(arg="--regions.e", type="character", required=TRUE, parser=readRegions,
          help="Path to the BED file with the enhancer training regions associated to the count matrix."),
     list(arg="--regions.p", type="character", required=TRUE, parser=readRegions,
@@ -26,7 +26,7 @@ getConstructModelOptions <- function(){
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(constructModel)$nthreads,
          help="Number of threads to be used")
-    )
+  )
   opts
 }
 
@@ -44,8 +44,8 @@ constructModelCLI <- function(args, prog){
 #' @param model.bg A list with the parameters that describe the background HMM.
 #' @param model.e A list with the parameters that describe the enhancer HMM.
 #' @param model.p A list with the parameters that describe the promoter HMM.
-#' @param rpmCounts.e rpm-normalized count matrix for enhancer training regions.
-#' @param rpmCounts.p rpm-normalized count matrix for promoter training regions.
+#' @param counts.e count matrix for enhancer training regions.
+#' @param counts.p count matrix for promoter training regions.
 #' @param regions.e GRanges object containing the enhancer training regions.
 #' @param regions.p GRanges object containing the promoter training regions.
 #' @param accStates.e String of comma-separated state-numbers for enhancer accessibility states.
@@ -57,7 +57,7 @@ constructModelCLI <- function(args, prog){
 #' @return A list with the following arguments:
 #' 
 #' @export
-constructModel <- function(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p, regions.e, regions.p, accStates.e, nucStates.e,
+constructModel <- function(model.bg, model.e, model.p, counts.e, counts.p, regions.e, regions.p, accStates.e, nucStates.e,
                            accStates.p, nucStates.p, outdir=".", nthreads=1){
   # check arguments and define variables
   binsize <- 100
@@ -68,9 +68,9 @@ constructModel <- function(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p,
   
   # refine enhancer / promoter models (relearn on training data with keeping emisP fixed)
   cat("Refine foreground models\n")
-  segmentation.e.refinedTrans <- segment(counts=rpmCounts.e, regions=regions.e,  nstates=model.e.init$nstates, model=model.e.init, nthreads=nthreads,
+  segmentation.e.refinedTrans <- segment(counts=counts.e, regions=regions.e,  nstates=model.e.init$nstates, model=model.e.init, nthreads=nthreads,
                                          verbose_kfoots=TRUE, trainMode='viterbi', fix_emisP=TRUE, nbtype='lognormal', endstate=model.e.init$endstates)
-  segmentation.p.refinedTrans <- segment(counts=rpmCounts.p, regions=regions.p, nstates=model.p.init$nstates, model=model.p.init, nthreads=nthreads,
+  segmentation.p.refinedTrans <- segment(counts=counts.p, regions=regions.p, nstates=model.p.init$nstates, model=model.p.init, nthreads=nthreads,
                                          verbose_kfoots=TRUE, trainMode='viterbi', fix_emisP=TRUE, nbtype='lognormal', endstate=model.p.init$endstates)
   
   # add labels and colors to model objects

@@ -34,7 +34,8 @@ Imports:
 	rtracklayer,
 	Rsamtools,
 	Matrix,
-	GenomeInfoDb
+	GenomeInfoDb,
+	affyPLM
 LinkingTo: Rcpp
 Suggests:
     testthat,

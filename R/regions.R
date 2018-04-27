@@ -75,3 +75,14 @@ writeRegions <- function(gr, path){
     
     write.table(tab, file=path, sep="\t", quote=F, row.names=F, col.names=F)
 }
+
+tileRegions <- function(gr, width){
+  # This function tiles a GRanges object into bins of a given width
+  if (!all((width(gr) %% 100) == 0)) stop('regions widths must be a multiple of the binwidth')
+  do.call('c', sapply(1:length(gr), function(i) {
+    starts <- seq(start(gr[i]), end(gr[i]), 100)
+    gr_i <- GRanges(seqnames=seqnames(gr[i]), ranges=IRanges(start=starts, end=starts+99))
+    if(!is.null(gr[i]$name)) gr_i$name <- gr[i]$name
+    gr_i
+  }))
+}

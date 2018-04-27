@@ -44,13 +44,13 @@ learnModelCLI <- function(args, prog){
 #' @export
 learnModel <- function(bamdir, regions, nstates, outdir=".", nthreads=1, pseudoCount=1){
   
-  # calculate, rpm-normalize and save count matrix
-  rpmCounts <- getRpmCounts(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount)
+  # calculate and save count matrix
+  counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount)
   
   # learn unsupervised model
   #TODO: implement fast learning on random 20mb subset..?
   cat("learning model\n")
-  segmentation <- segment(counts=rpmCounts, regions=regions, nstates=nstates, nthreads=nthreads,
+  segmentation <- segment(counts=counts, regions=regions, nstates=nstates, nthreads=nthreads,
                    verbose_kfoots=TRUE, nbtype='lognormal')
   
   # produce 'report'

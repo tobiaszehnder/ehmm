@@ -26,6 +26,7 @@
 #' @import Rsamtools
 #' @import rtracklayer
 #' @import Rsamtools
+#' @import affyPLM
 NULL
 
 
