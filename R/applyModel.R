@@ -49,12 +49,11 @@ applyModelCLI <- function(args, prog){
 #' @param refCounts Count matrix of the reference model.
 #' @param refRegions GRanges object containing the genomic regions of the reference model.
 #' Has to be given if \code{refCounts} and \code{counts} have different dimensions.
-#' @return A list with the following arguments:
+#' @return nothing.
 #' 
 #' @export
 applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refRegions=NULL, refCounts=NULL){
   # check arguments and define variables
-  if (!is.null(refCounts) && is.null(refRegions) && (dim(refCounts) != dim(counts))) stop('refCounts has different dimensions than counts. refRegions have to be stated')
   binsize <- 100
   
   # if not given, calculate and save count matrix
@@ -66,11 +65,16 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   # if reference count matrix is given, quantile normalize query count matrix
   # if query count matrix has different dimensions than the reference (i.e. the query regions are a subset of the reference whole-genome regions),
   # calculate a query count matrix for the reference regions, create a 'count-dictionary' which is then used to determine the normalized query values
-  if (blabla){
-    #TODO: CONTINUE HERE: erst checken ob dim(refcounts) == dim(counts), und wenn nicht, dann counts.full berechnen,
-    # damit quantile normalisieren und dict schreiben, dann counts mit dict normalisieren
-    refCounts.full <- bla
-    counts <- quantileNormalizeToReference(refCounts, counts)
+  if (!is.null(refCounts)){
+    if (all(dim(refCounts) != dim(counts))){
+      if is.null(refRegions) stop('refCounts has different dimensions than counts. refRegions have to be stated')
+      counts.full <- getCountMatrix(bamdir, refRegions, binsize=100, nthreads, pseudoCount=1) # not written to file without passed outdir argument
+      res <- quantileNormalizeToReference(refCounts, counts.full)
+      counts <- sapply(1:ncol(counts), function(i) res$dict.list[[i]][as.character(counts[,i])])
+    } else {
+      res <- quantileNormalizeToReference(refCounts, counts)
+      counts <- res$cm.query.normalized
+    }
   }
 
   # segment regions

@@ -15,15 +15,21 @@ quantileNormalization <- function(vmat, ref=c("median", "min", "mean"), nthreads
     quantileNorm(vmat, ref, nthreads=nthreads)
 }
 
-quantileNormalizeToReference <- function(cmfile.reference, cmfile.query){
+quantileNormalizeToReference <- function(cm.reference, cm.query){
   # This function quantile-normalizes a query count matrix to a reference count matrix,
   # i.e. it sorts both distributions and deploys the values of the reference distribution to the entries of the query distribution with respect to their rank.
   cm.query.normalized <- matrix(nrow=nrow(cm.query), ncol=ncol(cm.query))
+  dict.list <- vector(mode="list", length=ncol(cm.query))
   for (i in 1:ncol(cm.query)){
     target <- normalize.quantiles.determine.target(as.matrix(cm.reference[,i]))
-    cm.query.normalized[,i] <- normalize.quantiles.use.target(as.matrix(cm.query[,i]), target)
+    query <- as.matrix(cm.query[,i])
+    query.normalized <- normalize.quantiles.use.target(query, target)
+    cm.query.normalized[,i] <- query.normalized
+    dict <- as.vector(query.normalized)
+    names(dict) <- as.vector(query)
+    dict.list[[i]] <- dict[unique(names(dict))]
   }
-  return(cmfile.query.normalized)
+  return(list(cm.query.normalized=cm.query.normalized, dict.list=dict.list))
 }
 
 defaultSFFun <- function(vmat, method="RLE", ...){

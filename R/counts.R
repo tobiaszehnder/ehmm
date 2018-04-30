@@ -28,7 +28,7 @@ readCounts <- function(path){
     if (isRdata(path)){
         counts <- readRdata(path)
     } else {
-        counts <- tryCatch({ # in case of lognormal, the countmatrix is in decimals instead of integers
+        counts <- tryCatch({ # in case of rpm-normalized counts, the countmatrix is in decimals instead of integers
           read.table(path, header=TRUE, sep="\t", colClasses='integer', row.names=NULL, check.names=FALSE)
           counts <- t(bindCols(countsList))
           }, error = function(err) {
@@ -59,8 +59,8 @@ writeCountsDouble <- function(counts, path){
   }
 }
 
-getCountMatrix <- function(bamdir, regions, outdir=".", binsize=100, nthreads=1, pseudoCount=1){
-  # This script calculates a count matrix for given regions based on all bam-files in a given bam-directory and writes it to file.
+getCountMatrix <- function(bamdir, regions, outdir=NULL, binsize=100, nthreads=1, pseudoCount=1){
+  # This script calculates a count matrix for given regions based on all bam-files in a given bam-directory and writes it to file (only if outdir is given).
   
   # check arguments and define variables
   featurePaths <- paste(bamdir, list.files(path=bamdir, pattern = "\\.bam$"), sep='/')
@@ -75,13 +75,12 @@ getCountMatrix <- function(bamdir, regions, outdir=".", binsize=100, nthreads=1,
   # create count matrix
   counts <- getcounts(regions, bamtab, binsize=binsize, nthreads=nthreads) + pseudoCount
   
-  # # rpm-normalize count matrix
-  # counts <- rpmNormalizeCounts(counts, bamtab, binsize, pseudoCount)
-  
   # write count matrix
-  target <- paste(outdir, 'countmatrix.txt', sep='/')
-  cat(sep="", "writing count matrix to the file '", target, "'\n")
-  writeCountsDouble(counts, target)
+  if(!is.null(outdir)){
+    target <- paste(outdir, 'countmatrix.txt', sep='/')
+    cat(sep="", "writing count matrix to the file '", target, "'\n")
+    writeCountsDouble(counts, target)
+  }
   
   return(counts)
 }
