@@ -19,12 +19,13 @@ quantileNormalizeToReference <- function(cm.reference, cm.query){
   # This function quantile-normalizes a query count matrix to a reference count matrix,
   # i.e. it sorts both distributions and deploys the values of the reference distribution to the entries of the query distribution with respect to their rank.
   cm.query.normalized <- matrix(nrow=nrow(cm.query), ncol=ncol(cm.query))
-  dict.list <- vector(mode="list", length=ncol(cm.query))
-  for (i in 1:ncol(cm.query)){
-    target <- normalize.quantiles.determine.target(as.matrix(cm.reference[,i]))
-    query <- as.matrix(cm.query[,i])
-    query.normalized <- normalize.quantiles.use.target(query, target)
-    cm.query.normalized[,i] <- query.normalized
+  row.names(cm.query.normalized) <- row.names(cm.query)
+  dict.list <- vector(mode="list", length=nrow(cm.query))
+  for (i in 1:nrow(cm.query)){
+    target <- preprocessCore::normalize.quantiles.determine.target(as.matrix(cm.reference[i,]))
+    query <- as.matrix(cm.query[i,])
+    query.normalized <- preprocessCore::normalize.quantiles.use.target(query, target)
+    cm.query.normalized[i,] <- query.normalized
     dict <- as.vector(query.normalized)
     names(dict) <- as.vector(query)
     dict.list[[i]] <- dict[unique(names(dict))]

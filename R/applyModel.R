@@ -70,14 +70,14 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
       if (is.null(refRegions)) stop('refCounts has different dimensions than counts. refRegions have to be stated')
       counts.full <- getCountMatrix(bamdir, refRegions, binsize=100, nthreads, pseudoCount=1) # not written to file without passed outdir argument
       res <- quantileNormalizeToReference(refCounts, counts.full)
-      counts <- sapply(1:ncol(counts), function(i) res$dict.list[[i]][as.character(counts[,i])])
+      counts <- sapply(1:nrow(counts), function(i) res$dict.list[[i]][as.character(counts[i,])])
     } else {
       res <- quantileNormalizeToReference(refCounts, counts)
       counts <- res$cm.query.normalized
     }
     # write normalized count matrix to file
     filename <- paste(outdir, 'countmatrix_normalized.txt', sep='/')
-    cat(sep="", "writing normalized count matrix to the file '", target, "'\n")
+    cat(sep="", "writing normalized count matrix to the file '", filename, "'\n")
     writeCountsDouble(counts, filename)
   }
 
