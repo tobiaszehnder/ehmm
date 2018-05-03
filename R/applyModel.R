@@ -65,20 +65,44 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   # if reference count matrix is given, quantile normalize query count matrix
   # if query count matrix has different dimensions than the reference (i.e. the query regions are a subset of the reference whole-genome regions),
   # calculate a query count matrix for the reference regions, create a 'count-dictionary' which is then used to determine the normalized query values
+  
+  ###TODO: write this into a function and return counts.normalized!###
+  
   if (!is.null(refCounts)){
-    if (all(dim(refCounts) != dim(counts))){
+    if (!(all(dim(refCounts) == dim(counts)))){
       if (is.null(refRegions)) stop('refCounts has different dimensions than counts. refRegions have to be stated')
-      counts.full <- getCountMatrix(bamdir, refRegions, binsize=100, nthreads, pseudoCount=1) # not written to file without passed outdir argument
-      res <- quantileNormalizeToReference(refCounts, counts.full)
-      counts <- sapply(1:nrow(counts), function(i) res$dict.list[[i]][as.character(counts[i,])])
+      counts.full <- getCountMatrix(bamdir=bamdir, regions=refRegions, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
+      # clip counts to 99.9 percentile. also, clip 'counts' to the maximum of 'counts.full.clipped'
+      counts.full.clipped <- clipCounts(counts.full, .999)
+      counts.clipped <- counts
+      for (i in 1:nrow(counts)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])
+      refCounts.clipped <- clipCounts(refCounts, .999)
+      cat('normalizing count matrix to reference\n')
+      res <- quantileNormalizeToReference(cm.reference=refCounts.clipped, cm.query=counts.full.clipped)
+      rnames <- row.names(counts)
+      # deal with counts not present in the dict (due to shifted regions): interpolate with values closest two dict-keys and add to the dict.
+      for (i in 1:nrow(counts.clipped)){
+        countsNotInDict <- setdiff(unique(counts.clipped[i,]), names(res$dict.list[[i]]))
+        for (count in countsNotInDict){
+          nearestValues <- res$dict.list[[i]][order(abs(as.numeric(names(res$dict.list[[i]])) - countsNotInDict))[1:2]]
+          interpolatedValue <- approxfun(c(names(nearestValues)), c(nearestValues))(count)
+          res$dict.list[[i]][as.character(count)] <- interpolatedValue
+        }
+      }
+      counts.normalized <- t(sapply(1:nrow(counts.clipped), function(i) as.vector(res$dict.list[[i]][as.character(counts.clipped[i,])])))
+      row.names(counts.normalized) <- rnames
     } else {
-      res <- quantileNormalizeToReference(refCounts, counts)
-      counts <- res$cm.query.normalized
+      counts.clipped <- clipCounts(counts, .999)
+      refCounts.clipped <- clipCounts(refCounts, .999)
+      cat('normalizing count matrix to reference\n')
+      res <- quantileNormalizeToReference(cm.reference=refCounts.clipped, cm.query=counts.clipped)
+      counts.normalized <- res$cm.query.normalized
     }
     # write normalized count matrix to file
     filename <- paste(outdir, 'countmatrix_normalized.txt', sep='/')
     cat(sep="", "writing normalized count matrix to the file '", filename, "'\n")
-    writeCountsDouble(counts, filename)
+    writeCountsDouble(counts.normalized, filename)
+    counts <- counts.normalized
   }
 
   # segment regions
@@ -136,4 +160,13 @@ aggScore <- function(gr.reference, gr.tiled, func, aggName=F){
   gr.reference$score <- aggSc$x
   if (aggName && !is.null(gr.tiled$name)) gr.reference$name <- aggregate(gr.tiled$name[subjectHits(ov)], list(queryHits(ov)), 'unique')$x
   return(gr.reference)
+}
+
+clipCounts <- function(cm, percentile){
+  cm.clipped <- cm
+  for (i in 1:nrow(cm)) {
+    clipValue <- quantile(cm[i,], percentile)
+    cm.clipped[i, (cm.clipped[i,] > clipValue)] <- clipValue
+  }
+  return(cm.clipped)
 }

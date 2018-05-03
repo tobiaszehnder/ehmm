@@ -24,7 +24,7 @@ quantileNormalizeToReference <- function(cm.reference, cm.query){
   for (i in 1:nrow(cm.query)){
     target <- preprocessCore::normalize.quantiles.determine.target(as.matrix(cm.reference[i,]))
     query <- as.matrix(cm.query[i,])
-    query.normalized <- preprocessCore::normalize.quantiles.use.target(query, target)
+    query.normalized <- preprocessCore::normalize.quantiles.use.target(x=query, target=target)
     cm.query.normalized[i,] <- query.normalized
     dict <- as.vector(query.normalized)
     names(dict) <- as.vector(query)
