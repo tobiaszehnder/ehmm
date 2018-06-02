@@ -72,6 +72,7 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
     if (!(all(dim(refCounts) == dim(counts)))){
       if (is.null(refRegions)) stop('refCounts has different dimensions than counts. refRegions have to be stated')
       counts.full <- getCountMatrix(bamdir=bamdir, regions=refRegions, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
+      if (!(all(dim(refCounts) == dim(counts.full)))) stop('refRegions must contain the regions that were used to calculate refCounts')
       # clip counts to 99.9 percentile. also, clip 'counts' to the maximum of 'counts.full.clipped'
       counts.full.clipped <- clipCounts(counts.full, .999)
       counts.clipped <- counts
