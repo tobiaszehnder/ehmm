@@ -93,7 +93,9 @@ getCLIsubprograms <- function(){list(
     constructModel=list(desc="Construct a full model by combining given models for background, enhancers and promoters",
                         fun=constructModelCLI, cliargs=getConstructModelOptions),
     applyModel=list(desc="Produce a segmentation based on a given model and extract enhancer / promoter elemenents",
-                    fun=applyModelCLI, cliargs=getApplyModelOptions)
+                    fun=applyModelCLI, cliargs=getApplyModelOptions),
+    differentialScores=list(desc="Calculate differential scores based on two BED-files containing scores",
+                            fun=differentialScoresCLI, cliargs=getDifferentialScoresOptions)
     )}
     
 CLI <- function(args, prog){

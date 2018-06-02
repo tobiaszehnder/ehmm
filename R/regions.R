@@ -9,10 +9,13 @@ getBEDFormat <- function(bedline) {
     length(lineArgs)
 }
 
+# see description below
+readRegionsWithScores <- function(path) readRegions(path, keepScore=T)
+
 #reads a bed file up to the 6th field, 
 #fields after the 6th are discarded
-#also the score field (the 5th) is discarded
-readRegions <- function(path) {
+#by default, also the score field (the 5th) is discarded, but saved if the function is called with readRegionsWithScores
+readRegions <- function(path, keepScore=F) {
     stopifnot(length(path)==1)
     #tries to guess the right number of columns and header lines to be skipped
     #should adapt the function bed2GR so that it can parse the metaData
@@ -26,7 +29,7 @@ readRegions <- function(path) {
     if (is.null(nFields)) stop("unable to find a proper bed line in the file")
     #i stores the index of the first proper bed line
     #nFields stores the number of fields
-    what <- list(character(), integer(), integer(), character(), NULL, character())[1:(min(nFields, 6))]
+    what <- list(character(), integer(), integer(), character(), double(), character())[1:(min(nFields, 6))]
     if (nFields > 6){
         for (j in 7:nFields){
             what[[j]] <- NULL
@@ -37,6 +40,8 @@ readRegions <- function(path) {
     gr <- GRanges(seqnames=regions[[1]], IRanges(start=regions[[2]]+1, end=regions[[3]]))
     #set the name of the regions
     if (nFields >= 4) names(gr) <- regions[[4]]
+    #set scores if desired
+    if (keepScore) gr$score <- regions[[5]]
     #set the strand of the regions
     if (nFields >= 6) {
         if (any(!(regions[[6]] %in% c("*",".","+","-")))) {
