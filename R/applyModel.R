@@ -17,9 +17,10 @@ getApplyModelOptions <- function(){
     list(arg="--learnTrans", flag=TRUE,
          help="Whether or not to let the model learn the transition probabilities while fixing the emission parameters."),
     list(arg="--refCounts", type="character", parser=readCounts,
-         help="Path to the count matrix of the reference model. If given, the counts of the query sample will be quantile-normalized to its distribution."),
-    list(arg="--refRegions", type="character", parser=readRegions,
-         help="Path to the BED file with the genomic regions of the reference model. Has to be given if refCounts and counts have different dimensions.")
+         help="Path to the count matrix of the reference model. If given, the counts of the query sample will be quantile-normalized to its distribution.
+         refCounts should ideally represent a full genome and not just a subset."),
+    # list(arg="--refRegions", type="character", parser=readRegions,
+    #      help="Path to the BED file with the genomic regions of the reference model. Has to be given if refCounts and counts have different dimensions.")
   )
   opts
 }
@@ -47,12 +48,11 @@ applyModelCLI <- function(args, prog){
 #' @param nthreads number of threads used for learning.
 #' @param learnTrans flag, whether or not to let the model learn the transition probabilities while fixing the emission parameters.
 #' @param refCounts Count matrix of the reference model.
-#' @param refRegions GRanges object containing the genomic regions of the reference model.
 #' Has to be given if \code{refCounts} and \code{counts} have different dimensions.
 #' @return nothing.
 #' 
 #' @export
-applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refRegions=NULL, refCounts=NULL){
+applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refCounts=NULL){
   # check arguments and define variables
   binsize <- 100
   
@@ -60,28 +60,33 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   if (is.null(counts)){
     if (is.null(bamdir)) stop('either pass a count matrix or specify a bam-file directory to calculate it from')
     counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount=1)
+    if (regions)
   }
   
   # if reference count matrix is given, quantile normalize query count matrix
   # if query count matrix has different dimensions than the reference (i.e. the query regions are a subset of the reference whole-genome regions),
-  # calculate a query count matrix for the reference regions, create a 'count-dictionary' which is then used to determine the normalized query values
+  # calculate a query count matrix for the full genome, create a 'count-dictionary' which is then used to determine the normalized query values
   
   ###TODO: write this into a function and return counts.normalized!###
   
   if (!is.null(refCounts)){
     if (!(all(dim(refCounts) == dim(counts)))){
-      if (is.null(refRegions)) stop('refCounts has different dimensions than counts. refRegions have to be stated')
-      counts.full <- getCountMatrix(bamdir=bamdir, regions=refRegions, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
-      if (!(all(dim(refCounts) == dim(counts.full)))) stop('refRegions must contain the regions that were used to calculate refCounts')
-      # clip counts to 99.9 percentile. also, clip 'counts' to the maximum of 'counts.full.clipped'
+      regions.full <- GRanges(seqnames=names(genomeSize), IRanges(start=101, end=as.integer(genomeSize/100)*100))
+      if (!all(regions == regions.full)) {
+        cat('Calculate counts for full genome.') # always do normalization on countmatrix for full genome
+        counts.full <- getCountMatrix(bamdir=bamdir, regions=regions.full, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
+      } else counts.full <- counts
+      # clip counts.full to 99.9 percentile. also, clip 'counts' to the maximum of 'counts.full.clipped'
       counts.full.clipped <- clipCounts(counts.full, .999)
-      counts.clipped <- counts
-      for (i in 1:nrow(counts)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])
+      if !(all(regions == regions.full){
+        counts.clipped <- counts
+        for (i in 1:nrow(counts)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])
+      } else counts.clipped <- counts.full.clipped
       refCounts.clipped <- clipCounts(refCounts, .999)
       cat('normalizing count matrix to reference\n')
       res <- quantileNormalizeToReference(cm.reference=refCounts.clipped, cm.query=counts.full.clipped)
       rnames <- row.names(counts)
-      # deal with counts not present in the dict (due to shifted regions): interpolate with values closest two dict-keys and add to the dict.
+      # deal with counts not present in the dict (e.g. due to shifted regions): interpolate with values closest two dict-keys and add to the dict.
       for (i in 1:nrow(counts.clipped)){
         countsNotInDict <- setdiff(unique(counts.clipped[i,]), names(res$dict.list[[i]]))
         for (count in countsNotInDict){
@@ -92,7 +97,8 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
       }
       counts.normalized <- t(sapply(1:nrow(counts.clipped), function(i) as.vector(res$dict.list[[i]][as.character(counts.clipped[i,])])))
       row.names(counts.normalized) <- rnames
-    } else {
+    } else if() {
+      # if the dimensions of counts and refCounts are equal, we assume that they are both for the full genome and directly clip and normalize
       counts.clipped <- clipCounts(counts, .999)
       refCounts.clipped <- clipCounts(refCounts, .999)
       cat('normalizing count matrix to reference\n')
