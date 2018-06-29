@@ -60,7 +60,6 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   if (is.null(counts)){
     if (is.null(bamdir)) stop('either pass a count matrix or specify a bam-file directory to calculate it from')
     counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount=1)
-    if (regions)
   }
   
   # if reference count matrix is given, quantile normalize query count matrix
@@ -78,7 +77,7 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
       } else counts.full <- counts
       # clip counts.full to 99.9 percentile. also, clip 'counts' to the maximum of 'counts.full.clipped'
       counts.full.clipped <- clipCounts(counts.full, .999)
-      if !(all(regions == regions.full){
+      if (!all(regions == regions.full)){
         counts.clipped <- counts
         for (i in 1:nrow(counts)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])
       } else counts.clipped <- counts.full.clipped
@@ -97,7 +96,7 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
       }
       counts.normalized <- t(sapply(1:nrow(counts.clipped), function(i) as.vector(res$dict.list[[i]][as.character(counts.clipped[i,])])))
       row.names(counts.normalized) <- rnames
-    } else if() {
+    } else {
       # if the dimensions of counts and refCounts are equal, we assume that they are both for the full genome and directly clip and normalize
       counts.clipped <- clipCounts(counts, .999)
       refCounts.clipped <- clipCounts(refCounts, .999)
