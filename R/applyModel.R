@@ -18,9 +18,7 @@ getApplyModelOptions <- function(){
          help="Whether or not to let the model learn the transition probabilities while fixing the emission parameters."),
     list(arg="--refCounts", type="character", parser=readCounts,
          help="Path to the count matrix of the reference model. If given, the counts of the query sample will be quantile-normalized to its distribution.
-         refCounts should ideally represent a full genome and not just a subset."),
-    # list(arg="--refRegions", type="character", parser=readRegions,
-    #      help="Path to the BED file with the genomic regions of the reference model. Has to be given if refCounts and counts have different dimensions.")
+         refCounts should ideally represent a full genome and not just a subset.")
   )
   opts
 }
