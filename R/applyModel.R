@@ -142,9 +142,11 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   export.bed(gr, paste(outdir, 'promoter.scores.bed', sep='/'))
   promoterBedfile <- paste(outdir, 'promoterRegions.bed', sep='/')
   p.tiled <- gr[startsWith(gr$name, 'P')]
-  p <- reduce(p.tiled)
   file.create(promoterBedfile)
-  if (length(p) > 0) export.bed(p, promoterBedfile)
+  if (length(p.tiled) > 0){
+    p <- aggScore(reduce(p.tiled), p, 'max')
+    export.bed(p, promoterBedfile)
+  }
 }
 
 readGenomeSize <- function(genomeSize){
