@@ -144,7 +144,7 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   p.tiled <- gr[startsWith(gr$name, 'P')]
   file.create(promoterBedfile)
   if (length(p.tiled) > 0){
-    p <- aggScore(reduce(p.tiled), p, 'max')
+    p <- aggScore(reduce(p.tiled), p.tiled, 'max')
     export.bed(p, promoterBedfile)
   }
 }
