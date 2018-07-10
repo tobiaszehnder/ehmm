@@ -2,10 +2,13 @@ getApplyModelOptions <- function(){
   opts <- list(
     list(arg="--regions", type="character", required=TRUE, parser=readRegions,
          help="Path to the BED file with the genomic regions of interest."),
-    list(arg="--model", type="character", required=TRUE, parser=readModel,
-         help="Path to the file with the parameters of the HMM."),
     list(arg="--genomeSize", type="character", required=TRUE, parser=readGenomeSize,
          help="Path to a two-column file indicating chromosome names and sizes."),
+    list(arg="--model", type="character", parser=readModel,
+         help="Path to the file with the parameters of the HMM. Only required if --provide-model flag is not set."),
+    list(arg="--provide-model", flag=TRUE,
+         help="Whether or not to use the provided model that was learned on mouse embryonic stem cell data.
+         If this flag is set, query data will be normalized to the data that was used during model training."),
     list(arg="--counts", type="character", parser=readCounts,
          help="Path to the count matrix. If not given, it will be calculated and written to the output directory."),
     list(arg="--bamdir", type="character",
@@ -35,6 +38,7 @@ applyModelCLI <- function(args, prog){
 #'
 #' @param regions GRanges object containing the genomic regions of interest.
 #' @param model A list with the parameters that describe the HMM.
+#' @param provide-model flag, whether or not to use the provided model that was learned on mouse embryonic stem cell data.
 #' @param genomeSize vector with chromosome lengths.
 #' @param counts Count matrix matching with the \code{regions} parameter.
 #' Each row of the matrix represents a mark and each column a bin resulting
@@ -54,15 +58,21 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   # check arguments and define variables
   binsize <- 100
   
+  # deal with the provide-model flag
+  refCounts.clipped.unique <- NULL
+  if (provide-model){
+    # load provided rdata file with model and unique clipped count data
+  }
+  
   # if not given, calculate and save count matrix
   if (is.null(counts)){
     if (is.null(bamdir)) stop('either pass a count matrix or specify a bam-file directory to calculate it from')
     counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount=1)
   }
   
-  # if reference count matrix is given, quantile normalize query count matrix
-  if (!is.null(refCounts)){
-    counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize,
+  # if reference count matrix (or counts from provided model) is given, quantile normalize query count matrix
+  if (!(is.null(refCounts) && is.null(refCounts.clipped.unique))){
+    counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize, refCounts.clipped.unique=refCounts.clipped.unique,
                                       bamdir=bamdir, outdir=outdir, nthreads=nthreads)
   }
 
