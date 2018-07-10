@@ -67,8 +67,8 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   if (provideModel){
     # load provided rdata file with model and count table, which contains the counts as names and their numbers of occurrences as values.
     # reconstruct a refCounts matrix from the count table.
-    load(system.file("extdata", "mESC.rdata", package="ehmm"))
-    refCounts <- t(sapply(counts.tables, function(counts) as.integer(unlist(mapply(function(a,b) rep(a,b), names(counts), counts)))))
+    load(system.file("extdata", "mESC.rdata", package="ehmm", mustWork=TRUE))
+    refCounts <- reconstructCountmatrix(counts.tables)
   }
   
   # if not given, calculate and save count matrix
@@ -152,4 +152,21 @@ clipCounts <- function(cm, percentile){
     cm.clipped[i, (cm.clipped[i,] > clipValue)] <- clipValue
   }
   return(cm.clipped)
+}
+
+reconstructCountmatrix <- function(counts.tables){
+  # This function reconstructs a sorted countmatrix based on passed contingency tables (counts with frequencies)
+  # I use nested for loops over the preinitiated countmatrix instead of a one-liner sapply function for the sake of speed.
+  refCounts <- matrix(nrow=length(counts.tables), ncol=sum(counts.tables[[1]]))
+  row.names(refCounts) <- names(counts.tables)
+  for (feature in names(counts.tables)) {
+    tbl <- counts.tables[[feature]]
+    end <- cumsum(tbl)
+    start <- end-tbl+1
+    for (count in names(tbl)) {
+      freq <- tbl[count]
+      refCounts[feature, start[count]:end[count]] <- as.integer(rep(count, freq))
+    }
+  }
+  return(refCounts)
 }
