@@ -33,7 +33,7 @@ quantileNormalizeToReference <- function(cm.reference, cm.query){
   return(list(cm.query.normalized=cm.query.normalized, dict.list=dict.list))
 }
 
-quantileNormalizeCounts <- function(counts, refCounts, regions, genomeSize, refCounts.clipped.unique=NULL, bamdir, outdir, nthreads){
+quantileNormalizeCounts <- function(counts, refCounts, regions, genomeSize, bamdir, outdir, nthreads){
   # Preparatory function for the actual quantile normalization function that is called within this function.
   # Checks wether the dimensions of counts and refcounts are the same, and if not, calculates a countmatrix on the full target genome
   # to enable a comparison to the reference. Counts are clipped to the 99.9 percentile.

@@ -5,8 +5,8 @@ getApplyModelOptions <- function(){
     list(arg="--genomeSize", type="character", required=TRUE, parser=readGenomeSize,
          help="Path to a two-column file indicating chromosome names and sizes."),
     list(arg="--model", type="character", parser=readModel,
-         help="Path to the file with the parameters of the HMM. Only required if --provide-model flag is not set."),
-    list(arg="--provide-model", flag=TRUE,
+         help="Path to the file with the parameters of the HMM. Only required if --provideModel flag is not set."),
+    list(arg="--provideModel", flag=TRUE,
          help="Whether or not to use the provided model that was learned on mouse embryonic stem cell data.
          If this flag is set, query data will be normalized to the data that was used during model training."),
     list(arg="--counts", type="character", parser=readCounts,
@@ -38,7 +38,7 @@ applyModelCLI <- function(args, prog){
 #'
 #' @param regions GRanges object containing the genomic regions of interest.
 #' @param model A list with the parameters that describe the HMM.
-#' @param provide-model flag, whether or not to use the provided model that was learned on mouse embryonic stem cell data.
+#' @param provideModel flag, whether or not to use the provided model that was learned on mouse embryonic stem cell data.
 #' @param genomeSize vector with chromosome lengths.
 #' @param counts Count matrix matching with the \code{regions} parameter.
 #' Each row of the matrix represents a mark and each column a bin resulting
@@ -54,14 +54,21 @@ applyModelCLI <- function(args, prog){
 #' @return nothing.
 #' 
 #' @export
-applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refCounts=NULL){
+applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refCounts=NULL){
   # check arguments and define variables
   binsize <- 100
+  if (!is.null(model)) provideModel <- FALSE
+  if (is.null(model) && !provideModel){
+    cat('No model specified. Provided mESC model will be used.')
+    provideModel <- TRUE
+  }
   
-  # deal with the provide-model flag
-  refCounts.clipped.unique <- NULL
-  if (provide-model){
-    # load provided rdata file with model and unique clipped count data
+  # deal with the provideModel flag
+  if (provideModel){
+    # load provided rdata file with model and count table, which contains the counts as names and their numbers of occurrences as values.
+    # reconstruct a refCounts matrix from the count table.
+    load(system.file("extdata", "mESC.rdata", package="ehmm"))
+    refCounts <- t(sapply(counts.tables, function(counts) as.integer(unlist(mapply(function(a,b) rep(a,b), names(counts), counts)))))
   }
   
   # if not given, calculate and save count matrix
@@ -72,7 +79,7 @@ applyModel <- function(regions, model, genomeSize, counts=NULL, bamdir=NULL, out
   
   # if reference count matrix (or counts from provided model) is given, quantile normalize query count matrix
   if (!(is.null(refCounts) && is.null(refCounts.clipped.unique))){
-    counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize, refCounts.clipped.unique=refCounts.clipped.unique,
+    counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize,
                                       bamdir=bamdir, outdir=outdir, nthreads=nthreads)
   }
 
