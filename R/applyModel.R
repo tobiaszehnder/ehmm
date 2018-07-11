@@ -77,8 +77,8 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
     counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount=1)
   }
   
-  # if reference count matrix (or counts from provided model) is given, quantile normalize query count matrix
-  if (!(is.null(refCounts) && is.null(refCounts.clipped.unique))){
+  # if reference count matrix is given, quantile normalize query count matrix
+  if (!(is.null(refCounts))){
     counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize,
                                       bamdir=bamdir, outdir=outdir, nthreads=nthreads)
   }
@@ -95,10 +95,12 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   
   # extract enhancers / promoters
   cat("extract enhancer / promoter elements\n")
-  extractRegions(segmentation)
+  extractRegions(segmentation, regions, genomeSize, outdir)
+  
+  cat("done\n\n")
 }
 
-extractRegions <- function(segmentation){
+extractRegions <- function(segmentation, regions, genomeSize, outdir){
   # this function tiles regions into 100 bp windows, assigns viterbi states and scores, extracts enhancer / promoter regions according to viterbi decoding,
   # and writes both scores and decoded elements to file
   labels <- segmentation$model$labels

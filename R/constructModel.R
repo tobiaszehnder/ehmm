@@ -14,14 +14,14 @@ getConstructModelOptions <- function(){
          help="Path to the BED file with the enhancer training regions associated to the count matrix."),
     list(arg="--regions.p", type="character", required=TRUE, parser=readRegions,
          help="Path to the BED file with the promoter training regions associated to the count matrix."),
-    list(arg="--accStates.e", type="character", required=TRUE, parser=readStates,
-         help="String of comma-separated state-numbers for enhancer accessibility states."),
-    list(arg="--nucStates.e", type="character", required=TRUE, parser=readStates,
-         help="String of comma-separated state-numbers for enhancer nucleosome states."),
-    list(arg="--accStates.p", type="character", required=TRUE, parser=readStates,
-         help="String of comma-separated state-numbers for promoter accessibility states."),
-    list(arg="--nucStates.p", type="character", required=TRUE, parser=readStates,
-         help="String of comma-separated state-numbers for promoter nucleosome states."),
+    list(arg="--accStates.e", type="character", parser=readStates,
+         help="String of comma-separated state-numbers for enhancer accessibility states. If not given, states selection will be automated."),
+    list(arg="--nucStates.e", type="character", parser=readStates,
+         help="String of comma-separated state-numbers for enhancer nucleosome states. If not given, states selection will be automated."),
+    list(arg="--accStates.p", type="character", parser=readStates,
+         help="String of comma-separated state-numbers for promoter accessibility states. If not given, states selection will be automated."),
+    list(arg="--nucStates.p", type="character", parser=readStates,
+         help="String of comma-separated state-numbers for promoter nucleosome states. If not given, states selection will be automated."),
     list(arg="--outdir", type="character",
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(constructModel)$nthreads,
@@ -48,19 +48,28 @@ constructModelCLI <- function(args, prog){
 #' @param counts.p count matrix for promoter training regions.
 #' @param regions.e GRanges object containing the enhancer training regions.
 #' @param regions.p GRanges object containing the promoter training regions.
-#' @param accStates.e String of comma-separated state-numbers for enhancer accessibility states.
-#' @param nucStates.e String of comma-separated state-numbers for enhancer nucleosome states.
-#' @param accStates.p String of comma-separated state-numbers for promoter accessibility states.
-#' @param nucStates.p String of comma-separated state-numbers for promoter nucleosome states.
+#' @param accStates.e String of comma-separated state-numbers for enhancer accessibility states. If not given, states selection will be automated.
+#' @param nucStates.e String of comma-separated state-numbers for enhancer nucleosome states. If not given, states selection will be automated.
+#' @param accStates.p String of comma-separated state-numbers for promoter accessibility states. If not given, states selection will be automated.
+#' @param nucStates.p String of comma-separated state-numbers for promoter nucleosome states. If not given, states selection will be automated.
 #' @param outdir path to the output directory
 #' @param nthreads number of threads used for learning.
 #' @return A list with the following arguments:
 #' 
 #' @export
-constructModel <- function(model.bg, model.e, model.p, counts.e, counts.p, regions.e, regions.p, accStates.e, nucStates.e,
-                           accStates.p, nucStates.p, outdir=".", nthreads=1){
+constructModel <- function(model.bg, model.e, model.p, counts.e, counts.p, regions.e, regions.p,
+                           accStates.e=NULL, nucStates.e=NULL, accStates.p=NULL, nucStates.p=NULL, outdir=".", nthreads=1){
   # check arguments and define variables
   binsize <- 100
+  if (any(is.null(accStates.e), is.null(nucStates.p), is.null(accStates.p), is.null(nucStates.p))){
+    cat('Automated state selection\n')
+    states.e <- selectStates(model.e)
+    accStates.e <- states.e$acc
+    nucStates.e <- states.e$nuc.e
+    states.p <- selectStates(model.p)
+    accStates.p <- states.p$acc
+    nucStates.p <- states.p$nuc.p
+  }
   
   # construct initial enhancer / promoter models
   model.e.init <- initializeParams(model.e, accStates.e, nucStates.e)
@@ -94,4 +103,16 @@ constructModel <- function(model.bg, model.e, model.p, counts.e, counts.p, regio
 readStates <- function(stateString){
   # This function parses a comma-separated string of state numbers to a integer-vector.
   return(as.integer(strsplit(stateString, ',')[[1]]))
+}
+
+selectStates <- function(model){
+  atac <- sapply(model$emisP, function(emis) emis$mu[1])
+  k27ac <- sapply(model$emisP, function(emis) emis$mu[2])
+  k4me1 <- sapply(model$emisP, function(emis) emis$mu[3])
+  k4me3 <- sapply(model$emisP, function(emis) emis$mu[4])
+  acc <- order(atac/k27ac, decreasing=T)[1:2]
+  methyl.ratio <- order(k4me1/k4me3, decreasing=T)
+  nuc.e <- methyl.ratio[!(methyl.ratio %in% acc)][1:2]
+  nuc.p <- rev(methyl.ratio[!(methyl.ratio %in% acc)])[1:2]
+  return(list(acc=acc, nuc.e=nuc.e, nuc.p=nuc.p))
 }
