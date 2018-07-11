@@ -93,34 +93,31 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   viterbi_segments <- statesToSegments(segmentation$viterbi, segmentation$segments) # create GRanges object with viterbi states
   report(segments=viterbi_segments, model=model, rdata=segmentation, outdir=outdir, colors=model$colors, labels=model$labels)
   
-  # tile regions into 100 bp windows, assign viterbi states and score, write to file
+  # extract enhancers / promoters
   cat("extract enhancer / promoter elements\n")
+  extractRegions(segmentation)
+}
+
+extractRegions <- function(segmentation){
+  # this function tiles regions into 100 bp windows, assigns viterbi states and scores, extracts enhancer / promoter regions according to viterbi decoding,
+  # and writes both scores and decoded elements to file
   labels <- segmentation$model$labels
   gr <- do.call('c', tile(regions, width=100))
   GenomeInfoDb:::seqlengths(gr) <- genomeSize[GenomeInfoDb:::seqlevels(gr)]
   gr$name <- labels[segmentation$viterbi]
-  gr$score <- segmentation$score$e
-  export.bw(gr, paste(outdir, 'enhancer.scores.bw', sep='/'))
-  export.bed(gr, paste(outdir, 'enhancer.scores.bed', sep='/'))
-  # extract enhancer regions, allocate maximum score and write to file
-  enhancerBedfile <- paste(outdir, 'enhancerRegions.bed', sep='/')
-  e.tiled <- gr[startsWith(gr$name, 'E')]
-  file.create(enhancerBedfile)
-  if (length(e.tiled) > 0){
-    e <- aggScore(reduce(e.tiled), e.tiled, 'max')
-    export.bed(e, enhancerBedfile)
-  }
-  # extract promoter regions, allocate maximum score and write to file
-  gr$score <- segmentation$score$p
-  export.bw(gr, paste(outdir, 'promoter.scores.bw', sep='/'))
-  export.bed(gr, paste(outdir, 'promoter.scores.bed', sep='/'))
-  promoterBedfile <- paste(outdir, 'promoterRegions.bed', sep='/')
-  p.tiled <- gr[startsWith(gr$name, 'P')]
-  file.create(promoterBedfile)
-  if (length(p.tiled) > 0){
-    p <- aggScore(reduce(p.tiled), p.tiled, 'max')
-    export.bed(p, promoterBedfile)
-  }
+  mapply(function(scores, elmName){
+    label <- toupper(substr(elmName, 1, 1))
+    gr$score <- scores
+    export.bw(gr, sprintf('%s/%s.scores.bw', outdir, elmName))
+    # export.bed(gr, sprintf('%s/%s.scores.bed', outdir, elmName))
+    regionsBedfile <- sprintf('%s/%sRegions.bed', outdir, elmName)
+    elms.tiled <- gr[startsWith(gr$name, label)]
+    file.create(regionsBedfile)
+    if (length(elms.tiled) > 0){
+      elms <- aggScore(reduce(elms.tiled), elms.tiled, 'max')
+      export.bed(elms, regionsBedfile)
+    }
+  }, segmentation$score, c('enhancer', 'promoter'))
 }
 
 readGenomeSize <- function(genomeSize){
