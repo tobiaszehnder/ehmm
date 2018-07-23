@@ -13,7 +13,7 @@ validateModel <- function(model, strict=FALSE, type="dep"){
   if (is.null(model)) stop("NULL is not a valid model")
     optArgs <- c("nstates", "marks", "labels", "colors", "emisP", "transP", "initP")
     if (is.null(names(model))) stop("model's element must be named")
-    if (!all(names(model) %in% optArgs)) warning("some arguments will be ignored (incorrect naming?)")
+    # if (!all(names(model) %in% optArgs)) warning("some arguments will be ignored (incorrect naming?)")
     if (!strict && !all(optArgs %in% names(model))) stop(paste("a model requires the following fields:", paste(optArgs, collapse=", ")))
     
     nstates <- model$nstates #can be NULL

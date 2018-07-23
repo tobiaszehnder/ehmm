@@ -201,7 +201,7 @@ segment <- function(counts, regions, nstates=NULL, model=NULL, notrain=FALSE, co
             #adapt the initPs to the current set of observations
             nInits <- length(regions)*nmat
             if (!collapseInitP && ncol(model$initP) != nInits){
-                warning("collapsing the initial probabilities for compatibility with the new set of observations")
+                # warning("collapsing the initial probabilities for compatibility with the new set of observations")
                 collapseInitP <- TRUE
             }
             if (collapseInitP){

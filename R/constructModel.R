@@ -107,11 +107,11 @@ readStates <- function(stateString){
 
 selectStates <- function(model){
   # assign marks
-  mark.acc <- unlist(sapply(c('atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(model.e$marks)))))
+  mark.acc <- unlist(sapply(c('atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(model$marks)))))
   if (length(mark.acc) != 1) stop('Error: Exactly one of the given mark names must contain "atac", "dhs" or "dnase".')
-  mark.k27ac <- which(grepl('k27ac', tolower(model.e$marks)))
-  mark.k4me1 <- which(grepl('k4me1', tolower(model.e$marks)))
-  mark.k4me3 <- which(grepl('k4me3', tolower(model.e$marks)))
+  mark.k27ac <- which(grepl('k27ac', tolower(model$marks)))
+  mark.k4me1 <- which(grepl('k4me1', tolower(model$marks)))
+  mark.k4me3 <- which(grepl('k4me3', tolower(model$marks)))
   atac <- sapply(model$emisP, function(emis) emis$mu[mark.acc])
   k27ac <- sapply(model$emisP, function(emis) emis$mu[mark.k27ac])
   k4me1 <- sapply(model$emisP, function(emis) emis$mu[mark.k4me1])
