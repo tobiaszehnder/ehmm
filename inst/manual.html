@@ -196,14 +196,6 @@ you have execution permission on the file <code>.ehmm.R</code>. </li>
 			<div class="argtype">Required arguments</div>
 			<div class="arg">
 			  <div class="argname">
-				--bamdir BAMDIR, -b BAMDIR
-			  </div>
-			  <div>
-				<p>Produce a counts matrix from several bam files</p>
-			  </div>
-			</div>
-			<div class="arg">
-			  <div class="argname">
 				--regions REGIONS, -r REGIONS
 			  </div>
 			  <div>
@@ -222,6 +214,19 @@ you have execution permission on the file <code>.ehmm.R</code>. </li>
 			  </div>
 			  <div>
 				<p>Number of states to use for training</p>
+			  </div>
+			</div>
+			<div class="arg">
+			  <div class="argname">
+				--mark LABEL:PATH, -m LABEL:PATH (repeatable)
+			  </div>
+			  <div>
+				<p>Mark name and path to a bam file where to extract reads from.
+				  The bam files must be indexed and the chromosome names must match with
+				  those specified in the bed file. Entries with the same mark name will
+				  be treated as replicates and collapsed into one experiment.</br>
+				  This option must be repeated for each mark, for example:</br>
+				  <code>-m ATAC-seq:/path1/foo1.bam -m H3K4ME1:/path2/foo2.bam</code></p>
 			  </div>
 			</div>
 		  </div>

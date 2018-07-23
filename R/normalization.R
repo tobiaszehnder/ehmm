@@ -33,7 +33,7 @@ quantileNormalizeToReference <- function(cm.reference, cm.query){
   return(list(cm.query.normalized=cm.query.normalized, dict.list=dict.list))
 }
 
-quantileNormalizeCounts <- function(counts, refCounts, regions, genomeSize, bamdir, outdir, nthreads){
+quantileNormalizeCounts <- function(counts, refCounts, regions, genomeSize, bamtab=NULL, outdir, nthreads){
   # Preparatory function for the actual quantile normalization function that is called within this function.
   # Checks wether the dimensions of counts and refcounts are the same, and if not, calculates a countmatrix on the full target genome
   # to enable a comparison to the reference. Counts are clipped to the 99.9 percentile.
@@ -41,9 +41,9 @@ quantileNormalizeCounts <- function(counts, refCounts, regions, genomeSize, bamd
     regions.full <- GRanges(seqnames=names(genomeSize), IRanges(start=101, end=as.integer(genomeSize/100)*100))
     if (any(is.na(match(regions, regions.full)))) {
       cat('Calculate counts for full genome\n') # always do normalization on countmatrix for full genome
-      if(is.null(bamdir)) stop('Error: no directory with bam-files was passed. It is necessary to calculate count matrix for the full genome 
+      if(is.null(bamtab)) stop('Error: no directory with bam-files was passed. It is necessary to calculate count matrix for the full genome 
                                because the passed regions file does not span the full genome.')
-      counts.full <- getCountMatrix(bamdir=bamdir, regions=regions.full, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
+      counts.full <- getCountMatrix(regions=regions.full, bamtab=bamtab, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
       counts.full.clipped <- clipCounts(counts.full, .999)
       counts.clipped <- counts
       for (i in 1:nrow(counts.clipped)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])

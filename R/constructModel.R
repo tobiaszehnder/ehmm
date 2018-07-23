@@ -106,10 +106,16 @@ readStates <- function(stateString){
 }
 
 selectStates <- function(model){
-  atac <- sapply(model$emisP, function(emis) emis$mu[1])
-  k27ac <- sapply(model$emisP, function(emis) emis$mu[2])
-  k4me1 <- sapply(model$emisP, function(emis) emis$mu[3])
-  k4me3 <- sapply(model$emisP, function(emis) emis$mu[4])
+  # assign marks
+  mark.acc <- unlist(sapply(c('atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(model.e$marks)))))
+  if (length(mark.acc) != 1) stop('Error: Exactly one of the given mark names must contain "atac", "dhs" or "dnase".')
+  mark.k27ac <- which(grepl('k27ac', tolower(model.e$marks)))
+  mark.k4me1 <- which(grepl('k4me1', tolower(model.e$marks)))
+  mark.k4me3 <- which(grepl('k4me3', tolower(model.e$marks)))
+  atac <- sapply(model$emisP, function(emis) emis$mu[mark.acc])
+  k27ac <- sapply(model$emisP, function(emis) emis$mu[mark.k27ac])
+  k4me1 <- sapply(model$emisP, function(emis) emis$mu[mark.k4me1])
+  k4me3 <- sapply(model$emisP, function(emis) emis$mu[mark.k4me3])
   acc <- order(atac/k27ac, decreasing=T)[1:2]
   methyl.ratio <- order(k4me1/k4me3, decreasing=T)
   nuc.e <- methyl.ratio[!(methyl.ratio %in% acc)][1:2]

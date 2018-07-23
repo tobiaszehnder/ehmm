@@ -1,7 +1,5 @@
 getLearnModelOptions <- function(){
   opts <- list(
-    list(arg="--bamdir", type="character", required=TRUE,
-         help="Path to the directory with the bam-files."),
     list(arg="--regions", type="character", required=TRUE, parser=readRegions,
          help="Path to the BED file with the genomic regions of interest.
          These regions will be automatically partitioned into smaller, 
@@ -12,6 +10,13 @@ getLearnModelOptions <- function(){
          the count matrix for later analyses."),
     list(arg="--nstates", type="integer", required=TRUE,
          help="Number of states to use for training"),
+    list(arg="--mark", type="character", required=TRUE, vectorial=TRUE, meta="label:path",
+         help="Mark name and path to a bam file where to extract reads from.
+         The bam files must be indexed and the chromosome names must match with
+         those specified in the bed file. Entries with the same mark name will
+         be treated as replicates and collapsed into one experiment.
+         This option must be repeated for each mark, for example:
+         `-m H3K4me3:/path1/foo1.bam -m H3K36me3:/path2/foo2.bam`"),
     list(arg="--outdir", type="character",
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(learnModel)$nthreads,
@@ -26,15 +31,21 @@ learnModelCLI <- function(args, prog){
   learnModelOptions <- getLearnModelOptions()
   #parse the options
   opt <- parseArgs(learnModelOptions, args, prog)
+  #make bamtab object
+  opt$bamtab <- makeBamtab(opt$mark)
+  opt <- opt[names(opt) != 'mark'] # remove 'mark' elements from opt
   #call 'learnModel'
   segmentation <- do.call(learnModel, opt)
 }
 
 #' Learn a model and produce a segmentation
 #'
-#' @param bamdir path to the bam-file directory.
 #' @param regions GRanges object containing the genomic regions of interest.
 #' @param nstates Number of states to learn.
+#' @param bamtab Data frame describing how to get the counts from each file. 
+#'     The following columns are required:
+#'     'mark' (name of the histone mark),
+#'     'path' (path to the bam file).
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
 #' @param pseudoCount pseudo-count to add to read counts.
@@ -42,10 +53,9 @@ learnModelCLI <- function(args, prog){
 #' @return A list with the following arguments:
 #' 
 #' @export
-learnModel <- function(bamdir, regions, nstates, outdir=".", nthreads=1, pseudoCount=1){
-  
+learnModel <- function(regions, nstates, bamtab, outdir=".", nthreads=1, pseudoCount=1){
   # calculate and save count matrix
-  counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount)
+  counts <- getCountMatrix(regions, bamtab, outdir, binsize=100, nthreads, pseudoCount)
   
   # learn unsupervised model
   #TODO: implement fast learning on random 20mb subset..?

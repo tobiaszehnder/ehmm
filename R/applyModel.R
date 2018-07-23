@@ -11,8 +11,13 @@ getApplyModelOptions <- function(){
          If this flag is set, query data will be normalized to the data that was used during model training."),
     list(arg="--counts", type="character", parser=readCounts,
          help="Path to the count matrix. If not given, it will be calculated and written to the output directory."),
-    list(arg="--bamdir", type="character",
-         help="Path to the directory with the bam-files. Only required if counts is not given."),
+    list(arg="--mark", type="character", vectorial=TRUE, meta="label:path",
+         help="Mark name and path to a bam file where to extract reads from. Only required if counts are not given.
+         The bam files must be indexed and the chromosome names must match with
+         those specified in the bed file. Entries with the same mark name will
+         be treated as replicates and collapsed into one experiment.
+         This option must be repeated for each mark, for example:
+         `-m H3K4me3:/path1/foo1.bam -m H3K36me3:/path2/foo2.bam`"),
     list(arg="--outdir", type="character",
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(applyModel)$nthreads,
@@ -30,6 +35,12 @@ applyModelCLI <- function(args, prog){
   applyModelOptions <- getApplyModelOptions()
   #parse the options
   opt <- parseArgs(applyModelOptions, args, prog)
+  #make bamtab object (only if opt$counts is missing)
+  if (!('counts' %in% names(opt))){
+    if (!('mark' %in% names(opt))) stop('either pass a count matrix (--counts) or specify bam-files to calculate it from (--mark)')
+    opt$bamtab <- makeBamtab(opt$mark)
+    opt <- opt[names(opt) != 'mark'] # remove 'mark' elements from opt
+  }
   #call 'applyModel'
   segmentation <- do.call(applyModel, opt)
 }
@@ -38,6 +49,10 @@ applyModelCLI <- function(args, prog){
 #'
 #' @param regions GRanges object containing the genomic regions of interest.
 #' @param model A list with the parameters that describe the HMM.
+#' @param bamtab Data frame describing how to get the counts from each file. 
+#'     The following columns are required:
+#'     'mark' (name of the histone mark),
+#'     'path' (path to the bam file).
 #' @param provideModel flag, whether or not to use the provided model that was learned on mouse embryonic stem cell data.
 #' @param genomeSize vector with chromosome lengths.
 #' @param counts Count matrix matching with the \code{regions} parameter.
@@ -45,7 +60,6 @@ applyModelCLI <- function(args, prog){
 #' from dividing the genomic regions into non-overlapping bins of equal size.
 #' The rows of the matrix must be named with the name of the marks and these names must be unique.
 #' If not given, it will be calculated and written to the output directory.
-#' @param bamdir path to the bam-file directory. Only required if counts is not given.
 #' @param outdir path to the output directory.
 #' @param nthreads number of threads used for learning.
 #' @param learnTrans flag, whether or not to let the model learn the transition probabilities while fixing the emission parameters.
@@ -54,7 +68,8 @@ applyModelCLI <- function(args, prog){
 #' @return nothing.
 #' 
 #' @export
-applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, counts=NULL, bamdir=NULL, outdir=".", nthreads=1, learnTrans=FALSE, refCounts=NULL){
+applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, counts=NULL, bamtab=NULL,
+                       outdir=".", nthreads=1, learnTrans=FALSE, refCounts=NULL){
   # check arguments and define variables
   binsize <- 100
   if (!is.null(model)) provideModel <- FALSE
@@ -73,14 +88,13 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   
   # if not given, calculate and save count matrix
   if (is.null(counts)){
-    if (is.null(bamdir)) stop('either pass a count matrix or specify a bam-file directory to calculate it from')
-    counts <- getCountMatrix(bamdir, regions, outdir, binsize=100, nthreads, pseudoCount=1)
+    counts <- getCountMatrix(regions, bamtab, outdir, binsize=100, nthreads, pseudoCount=1)
   }
   
   # if reference count matrix is given, quantile normalize query count matrix
   if (!(is.null(refCounts))){
     counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize,
-                                      bamdir=bamdir, outdir=outdir, nthreads=nthreads)
+                                      bamtab=bamtab, outdir=outdir, nthreads=nthreads)
   }
 
   # segment regions
