@@ -36,10 +36,11 @@ applyModelCLI <- function(args, prog){
   #parse the options
   opt <- parseArgs(applyModelOptions, args, prog)
   #make bamtab object (only if opt$counts is missing)
-  if (!('counts' %in% names(opt))){
-    if (!('mark' %in% names(opt))) stop('either pass a count matrix (--counts) or specify bam-files to calculate it from (--mark)')
+  if ('mark' %in% names(opt)){
     opt$bamtab <- makeBamtab(opt$mark)
     opt <- opt[names(opt) != 'mark'] # remove 'mark' elements from opt
+  } else {
+    if (!('counts' %in% names(opt))) stop('either pass a count matrix (--counts) or specify bam-files to calculate it from (--mark)')
   }
   #call 'applyModel'
   segmentation <- do.call(applyModel, opt)

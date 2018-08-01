@@ -107,11 +107,20 @@ readStates <- function(stateString){
 
 selectStates <- function(model){
   # assign marks
-  mark.acc <- unlist(sapply(c('atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(model$marks)))))
-  if (length(mark.acc) != 1) stop('Error: Exactly one of the given mark names must contain "atac", "dhs" or "dnase".')
+  mark.acc <- unlist(sapply(c('acc', 'atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(model$marks)))))
+  if (length(mark.acc) != 1){
+    stop('Error: Exactly one of the given mark names must contain "atac", "dhs" or "dnase".\n
+         If your chromatin accessibility assay is neither ATAC-seq nor DNase-seq, name it "ACC".\n
+         Example: --mark ACC:/path/chromatin_accessibility_assay.bam')
+  }
   mark.k27ac <- which(grepl('k27ac', tolower(model$marks)))
   mark.k4me1 <- which(grepl('k4me1', tolower(model$marks)))
   mark.k4me3 <- which(grepl('k4me3', tolower(model$marks)))
+  if (any(sapply(c(mark.k27ac, mark.k4me1, mark.k4me3), function(mrk) length(mrk) != 1))){
+    stop('Error: Automated state selection requires the three marks H3K27ac, H3K4me1, and H3K4me3 and their correct naming.\n
+         If you work with different marks, please select the states manually.
+         Example: --accStates.e 1,2 --nucStates.e 3,5 --accStates.p 2,3 --nucStates.p 1,4')
+  }
   atac <- sapply(model$emisP, function(emis) emis$mu[mark.acc])
   k27ac <- sapply(model$emisP, function(emis) emis$mu[mark.k27ac])
   k4me1 <- sapply(model$emisP, function(emis) emis$mu[mark.k4me1])
