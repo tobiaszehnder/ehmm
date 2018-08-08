@@ -83,7 +83,21 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   if (provideModel){
     # load provided rdata file with model and count table, which contains the counts as names and their numbers of occurrences as values.
     # reconstruct a refCounts matrix from the count table.
+    # check the passed --mark arguments. They must fit to the mESC model, i.e. one accessibility containing 'atac', 'dhs', 'dnase' or 'acc',
+    # as well as the three basic HM's H3K27ac and H3K4me1/3.
+    mark.acc <- unlist(sapply(c('acc', 'atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(bamtab$mark)))))
+    if (length(mark.acc) != 1){
+      stop('Error: Exactly one of the given mark names must contain "atac", "dhs" or "dnase".\n
+         If your chromatin accessibility assay is neither ATAC-seq nor DNase-seq, name it "ACC".\n
+         Example: --mark ACC:/path/chromatin_accessibility_assay.bam')
+    }
+    mark.k27ac <- which(grepl('k27ac', tolower(bamtab$mark)))
+    mark.k4me1 <- which(grepl('k4me1', tolower(bamtab$mark)))
+    mark.k4me3 <- which(grepl('k4me3', tolower(bamtab$mark)))
+    
     load(system.file("extdata", "mESC.rdata", package="ehmm", mustWork=TRUE))
+    model$marks <- bamtab$mark[c(mark.acc, mark.k27ac, mark.k4me1, mark.k4me3)] # rename provided model marks to the ones passed by the user.
+    names(counts.tables) <- model$marks
     refCounts <- reconstructCountmatrix(counts.tables)
   }
   
@@ -143,7 +157,7 @@ readGenomeSize <- function(genomeSize){
   df <- read.table(genomeSize)
   sizes <- df$V2
   names(sizes) <- df$V1
-  levelsToDrop <- unique(unlist(lapply(c('Un', 'M', 'random'), function(x) which(grepl(x, names(sizes))))))
+  levelsToDrop <- unique(unlist(lapply(c('Un', 'M', 'random', 'hap'), function(x) which(grepl(x, names(sizes))))))
   if (length(levelsToDrop) > 1) sizes <- sizes[-levelsToDrop]
   return(sizes)
 }

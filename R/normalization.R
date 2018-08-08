@@ -29,48 +29,45 @@ quantileNormalizeToReference <- function(cm.reference, cm.query){
     dict <- as.vector(query.normalized)
     names(dict) <- as.vector(query)
     dict.list[[i]] <- dict[unique(names(dict))]
+    dict.list[[i]] <- dict.list[[i]][order(as.integer(names(dict.list[[i]])))] # sort by names (= query counts)
   }
   return(list(cm.query.normalized=cm.query.normalized, dict.list=dict.list))
 }
 
 quantileNormalizeCounts <- function(counts, refCounts, regions, genomeSize, bamtab=NULL, outdir, nthreads){
   # Preparatory function for the actual quantile normalization function that is called within this function.
-  # Checks wether the dimensions of counts and refcounts are the same, and if not, calculates a countmatrix on the full target genome
+  # Checks wether the all the regions are full chromosomes, and if not, calculates a countmatrix on the full target genome
   # to enable a comparison to the reference. Counts are clipped to the 99.9 percentile.
-  if (!(all(dim(refCounts) == dim(counts)))){
-    regions.full <- GRanges(seqnames=names(genomeSize), IRanges(start=101, end=as.integer(genomeSize/100)*100))
-    if (any(is.na(match(regions, regions.full)))) {
-      cat('Calculate counts for full genome\n') # always do normalization on countmatrix for full genome
-      if(is.null(bamtab)) stop('Error: no directory with bam-files was passed. It is necessary to calculate count matrix for the full genome 
-                               because the passed regions file does not span the full genome.')
-      counts.full <- getCountMatrix(regions=regions.full, bamtab=bamtab, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
-      counts.full.clipped <- clipCounts(counts.full, .999)
-      counts.clipped <- counts
-      for (i in 1:nrow(counts.clipped)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])
-    } else counts.clipped <- clipCounts(counts, .999)
-    refCounts.clipped <- clipCounts(refCounts, .999)
-    cat('normalizing count matrix to reference\n')
-    res <- quantileNormalizeToReference(cm.reference=refCounts.clipped, cm.query=counts.full.clipped)
-    rnames <- row.names(counts)
-    # deal with counts not present in the dict (e.g. due to shifted regions): interpolate with values closest two dict-keys and add to the dict.
-    for (i in 1:nrow(counts.clipped)){
-      countsNotInDict <- setdiff(unique(counts.clipped[i,]), names(res$dict.list[[i]]))
-      for (count in countsNotInDict){
-        nearestValues <- res$dict.list[[i]][order(abs(as.numeric(names(res$dict.list[[i]])) - countsNotInDict))[1:2]]
-        interpolatedValue <- approxfun(c(names(nearestValues)), c(nearestValues))(count)
-        res$dict.list[[i]][as.character(count)] <- interpolatedValue
-      }
-    }
-    counts.normalized <- t(sapply(1:nrow(counts.clipped), function(i) as.vector(res$dict.list[[i]][as.character(counts.clipped[i,])])))
-    row.names(counts.normalized) <- rnames
+  regions.full <- GRanges(seqnames=names(genomeSize), IRanges(start=101, end=as.integer(genomeSize/100)*100))
+  if (any(is.na(match(regions, regions.full)))) { # this checks for every entry in regions whether there is a equal entry in regions.full, dealing with the possibility of different seqlevels.
+    cat('Calculate counts for full genome\n') # always do normalization on countmatrix for full genome
+    if(is.null(bamtab)) stop('Error: no directory with bam-files was passed. It is necessary to calculate count matrix for the full genome 
+                             because the passed regions file does not span the full genome.')
+    counts.full <- getCountMatrix(regions=regions.full, bamtab=bamtab, binsize=100, nthreads=nthreads, pseudoCount=1) # not written to file without passed outdir argument
+    counts.full.clipped <- clipCounts(counts.full, .999)
+    counts.clipped <- counts # here (in the next line) we just set any count greater than the rowwise max of counts.full.clipped to that exact max.
+    for (i in 1:nrow(counts.clipped)) counts.clipped[i, (counts[i,] > max(counts.full.clipped[i,]))] <- max(counts.full.clipped[i,])
   } else {
-    # if the dimensions of counts and refCounts are equal, we assume that they are both for the full genome and directly clip and normalize
-    counts.clipped <- clipCounts(counts, .999)
-    refCounts.clipped <- clipCounts(refCounts, .999)
-    cat('normalizing count matrix to reference\n')
-    res <- quantileNormalizeToReference(cm.reference=refCounts.clipped, cm.query=counts.clipped)
-    counts.normalized <- res$cm.query.normalized
+    counts.full <- counts # if the test above fails, the given counts are treated as full genome (technically they could be only for one full chromosome, but that's also fine)
+    counts.full.clipped <- clipCounts(counts.full, .999)
+    counts.clipped <- counts.full.clipped # here, we actually just reassign counts.full.clipped because counts and counts.full are the same.
   }
+  refCounts.clipped <- clipCounts(refCounts, .999)
+  cat('normalizing count matrix to reference\n')
+  res <- quantileNormalizeToReference(cm.reference=refCounts.clipped, cm.query=counts.full.clipped)
+  rnames <- row.names(counts)
+  # normalize the actual countmatrix. deal with counts not present in the dict (e.g. due to shifted regions compared to the full genome countmatrix):
+  # interpolate with values closest two dict-keys and add to the dict.
+  for (i in 1:nrow(counts.clipped)){
+    countsNotInDict <- setdiff(unique(counts.full.clipped[i,]), names(res$dict.list[[i]]))
+    for (count in countsNotInDict){
+      nearestValues <- res$dict.list[[i]][order(abs(as.numeric(names(res$dict.list[[i]])) - countsNotInDict))[1:2]]
+      interpolatedValue <- approxfun(c(names(nearestValues)), c(nearestValues))(count)
+      res$dict.list[[i]][as.character(count)] <- interpolatedValue
+    }
+  }
+  counts.normalized <- t(sapply(1:nrow(counts.clipped), function(i) as.vector(res$dict.list[[i]][as.character(counts.clipped[i,])])))
+  row.names(counts.normalized) <- rnames
   # write normalized count matrix to file
   filename <- paste(outdir, 'countmatrix_normalized.txt', sep='/')
   cat(sep="", "writing normalized count matrix to the file '", filename, "'\n")
