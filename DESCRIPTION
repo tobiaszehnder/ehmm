@@ -28,7 +28,6 @@ Imports:
     S4Vectors,
     IRanges,
     GenomicRanges,
-    kfoots,
     bamsignals,
     edgeR,
 	rtracklayer,

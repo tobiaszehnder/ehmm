@@ -229,7 +229,7 @@ quantileNorm <- function(mat, ref, nthreads = 1L, seed = 13L) {
     .Call('_ehmm_quantileNorm', PACKAGE = 'ehmm', mat, ref, nthreads, seed)
 }
 
-clist2mlist <- function(clist, nthreads = 1L) {
+qclist2mlist <- function(clist, nthreads = 1L) {
     .Call('_ehmm_clist2mlist', PACKAGE = 'ehmm', clist, nthreads)
 }
 

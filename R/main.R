@@ -20,7 +20,6 @@
 #' @import Rcpp
 #' @import IRanges
 #' @import GenomicRanges
-#' @import kfoots
 #' @import bamsignals
 #' @import edgeR
 #' @import Rsamtools

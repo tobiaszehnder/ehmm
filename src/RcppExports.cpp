@@ -5,6 +5,432 @@
 
 using namespace Rcpp;
 
+// forward_backward
+List forward_backward(NumericMatrix initP, NumericMatrix trans, NumericMatrix lliks, IntegerVector seqlens, NumericMatrix posteriors, int nthreads);
+RcppExport SEXP _ehmm_forward_backward(SEXP initPSEXP, SEXP transSEXP, SEXP lliksSEXP, SEXP seqlensSEXP, SEXP posteriorsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type initP(initPSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type trans(transSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type lliks(lliksSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type seqlens(seqlensSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type posteriors(posteriorsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forward_backward(initP, trans, lliks, seqlens, posteriors, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// viterbi
+List viterbi(NumericMatrix vscores, NumericMatrix initP, NumericMatrix trans, NumericMatrix lliks, NumericVector seqlens, IntegerVector endstate);
+RcppExport SEXP _ehmm_viterbi(SEXP vscoresSEXP, SEXP initPSEXP, SEXP transSEXP, SEXP lliksSEXP, SEXP seqlensSEXP, SEXP endstateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type vscores(vscoresSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type initP(initPSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type trans(transSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type lliks(lliksSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type seqlens(seqlensSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type endstate(endstateSEXP);
+    rcpp_result_gen = Rcpp::wrap(viterbi(vscores, initP, trans, lliks, seqlens, endstate));
+    return rcpp_result_gen;
+END_RCPP
+}
+// testSchedule
+Rcpp::List testSchedule(Rcpp::NumericVector jobs, int nthreads, int type);
+RcppExport SEXP _ehmm_testSchedule(SEXP jobsSEXP, SEXP nthreadsSEXP, SEXP typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type jobs(jobsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< int >::type type(typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(testSchedule(jobs, nthreads, type));
+    return rcpp_result_gen;
+END_RCPP
+}
+// testColPost
+Rcpp::NumericMatrix testColPost(Rcpp::NumericMatrix post, Rcpp::List m2u, int nthreads);
+RcppExport SEXP _ehmm_testColPost(SEXP postSEXP, SEXP m2uSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type post(postSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type m2u(m2uSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(testColPost(post, m2u, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// tabFast
+Rcpp::IntegerVector tabFast(Rcpp::IntegerVector counts);
+RcppExport SEXP _ehmm_tabFast(SEXP countsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type counts(countsSEXP);
+    rcpp_result_gen = Rcpp::wrap(tabFast(counts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// labelCounts
+Rcpp::IntegerVector labelCounts(Rcpp::NumericVector empirical, Rcpp::NumericVector theoretical);
+RcppExport SEXP _ehmm_labelCounts(SEXP empiricalSEXP, SEXP theoreticalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type empirical(empiricalSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type theoretical(theoreticalSEXP);
+    rcpp_result_gen = Rcpp::wrap(labelCounts(empirical, theoretical));
+    return rcpp_result_gen;
+END_RCPP
+}
+// clusterAverages2
+Rcpp::List clusterAverages2(Rcpp::NumericMatrix counts, Rcpp::NumericMatrix coords, Rcpp::List clusters, int nthreads);
+RcppExport SEXP _ehmm_clusterAverages2(SEXP countsSEXP, SEXP coordsSEXP, SEXP clustersSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type coords(coordsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type clusters(clustersSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(clusterAverages2(counts, coords, clusters, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// clusterAverages
+Rcpp::List clusterAverages(Rcpp::NumericMatrix counts, Rcpp::List clusters, int nthreads);
+RcppExport SEXP _ehmm_clusterAverages(SEXP countsSEXP, SEXP clustersSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type clusters(clustersSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(clusterAverages(counts, clusters, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fillPosteriors
+Rcpp::NumericMatrix fillPosteriors(Rcpp::IntegerMatrix coords, Rcpp::List clusters, int nclust, int nthreads);
+RcppExport SEXP _ehmm_fillPosteriors(SEXP coordsSEXP, SEXP clustersSEXP, SEXP nclustSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type coords(coordsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type clusters(clustersSEXP);
+    Rcpp::traits::input_parameter< int >::type nclust(nclustSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fillPosteriors(coords, clusters, nclust, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rowdotprod
+Rcpp::NumericMatrix rowdotprod(Rcpp::NumericMatrix counts, bool besselCorr, int nthreads);
+RcppExport SEXP _ehmm_rowdotprod(SEXP countsSEXP, SEXP besselCorrSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< bool >::type besselCorr(besselCorrSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rowdotprod(counts, besselCorr, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// discretizeRows
+Rcpp::IntegerMatrix discretizeRows(Rcpp::NumericMatrix scores, int nlevels, int nthreads);
+RcppExport SEXP _ehmm_discretizeRows(SEXP scoresSEXP, SEXP nlevelsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< int >::type nlevels(nlevelsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(discretizeRows(scores, nlevels, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splitAxes
+Rcpp::IntegerMatrix splitAxes(Rcpp::NumericMatrix scores, int nsplit, int nthreads);
+RcppExport SEXP _ehmm_splitAxes(SEXP scoresSEXP, SEXP nsplitSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< int >::type nsplit(nsplitSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(splitAxes(scores, nsplit, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splitAxesInt
+Rcpp::IntegerMatrix splitAxesInt(Rcpp::IntegerMatrix scores, int nsplit, int nthreads);
+RcppExport SEXP _ehmm_splitAxesInt(SEXP scoresSEXP, SEXP nsplitSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< int >::type nsplit(nsplitSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(splitAxesInt(scores, nsplit, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// KL_dist_mat_LN
+Rcpp::NumericMatrix KL_dist_mat_LN(Rcpp::NumericMatrix mus, Rcpp::NumericMatrix sigmasqs, int nthreads);
+RcppExport SEXP _ehmm_KL_dist_mat_LN(SEXP musSEXP, SEXP sigmasqsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mus(musSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type sigmasqs(sigmasqsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(KL_dist_mat_LN(mus, sigmasqs, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// KL_dist_mat
+Rcpp::NumericMatrix KL_dist_mat(Rcpp::NumericMatrix nbs, double r, int nthreads);
+RcppExport SEXP _ehmm_KL_dist_mat(SEXP nbsSEXP, SEXP rSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type nbs(nbsSEXP);
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(KL_dist_mat(nbs, r, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// findUniqueSeeds
+Rcpp::IntegerVector findUniqueSeeds(Rcpp::IntegerMatrix counts, Rcpp::IntegerVector permutation, int k);
+RcppExport SEXP _ehmm_findUniqueSeeds(SEXP countsSEXP, SEXP permutationSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type permutation(permutationSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(findUniqueSeeds(counts, permutation, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// support_openmp
+bool support_openmp();
+RcppExport SEXP _ehmm_support_openmp() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(support_openmp());
+    return rcpp_result_gen;
+END_RCPP
+}
+// llik2posteriors
+Rcpp::List llik2posteriors(Rcpp::NumericMatrix lliks, Rcpp::NumericVector mix_coeff, Rcpp::NumericMatrix posteriors, int nthreads);
+RcppExport SEXP _ehmm_llik2posteriors(SEXP lliksSEXP, SEXP mix_coeffSEXP, SEXP posteriorsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type lliks(lliksSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mix_coeff(mix_coeffSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type posteriors(posteriorsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(llik2posteriors(lliks, mix_coeff, posteriors, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mapToUnique
+Rcpp::List mapToUnique(Rcpp::NumericVector values);
+RcppExport SEXP _ehmm_mapToUnique(SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(mapToUnique(values));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getMultinomConst
+Rcpp::NumericVector getMultinomConst(Rcpp::NumericMatrix counts, int nthreads);
+RcppExport SEXP _ehmm_getMultinomConst(SEXP countsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(getMultinomConst(counts, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getMultinomConstSW
+Rcpp::NumericVector getMultinomConstSW(SEXP counts, int nthreads);
+RcppExport SEXP _ehmm_getMultinomConstSW(SEXP countsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(getMultinomConstSW(counts, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sumAt
+Rcpp::NumericVector sumAt(Rcpp::NumericVector values, Rcpp::IntegerVector map, int size, bool zeroIdx);
+RcppExport SEXP _ehmm_sumAt(SEXP valuesSEXP, SEXP mapSEXP, SEXP sizeSEXP, SEXP zeroIdxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type values(valuesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type map(mapSEXP);
+    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< bool >::type zeroIdx(zeroIdxSEXP);
+    rcpp_result_gen = Rcpp::wrap(sumAt(values, map, size, zeroIdx));
+    return rcpp_result_gen;
+END_RCPP
+}
+// colSumsInt
+Rcpp::IntegerVector colSumsInt(Rcpp::IntegerMatrix nums, int nthreads);
+RcppExport SEXP _ehmm_colSumsInt(SEXP numsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type nums(numsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(colSumsInt(nums, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// colSumsDouble
+Rcpp::NumericVector colSumsDouble(Rcpp::NumericMatrix nums, int nthreads);
+RcppExport SEXP _ehmm_colSumsDouble(SEXP numsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type nums(numsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(colSumsDouble(nums, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rowSumsDouble
+Rcpp::NumericVector rowSumsDouble(Rcpp::NumericMatrix mat, int nthreads);
+RcppExport SEXP _ehmm_rowSumsDouble(SEXP matSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rowSumsDouble(mat, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lLikMat
+void lLikMat(Rcpp::NumericMatrix counts, Rcpp::List models, Rcpp::List ucs, Rcpp::NumericVector mConst, Rcpp::NumericVector lliks, int nthreads, std::string type);
+RcppExport SEXP _ehmm_lLikMat(SEXP countsSEXP, SEXP modelsSEXP, SEXP ucsSEXP, SEXP mConstSEXP, SEXP lliksSEXP, SEXP nthreadsSEXP, SEXP typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type models(modelsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type ucs(ucsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mConst(mConstSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lliks(lliksSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
+    lLikMat(counts, models, ucs, mConst, lliks, nthreads, type);
+    return R_NilValue;
+END_RCPP
+}
+// lLikGapMat
+void lLikGapMat(SEXP counts, Rcpp::List models, Rcpp::List ucs, Rcpp::NumericVector mConst, Rcpp::NumericVector lliks, int nthreads, std::string type);
+RcppExport SEXP _ehmm_lLikGapMat(SEXP countsSEXP, SEXP modelsSEXP, SEXP ucsSEXP, SEXP mConstSEXP, SEXP lliksSEXP, SEXP nthreadsSEXP, SEXP typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type models(modelsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type ucs(ucsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mConst(mConstSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lliks(lliksSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
+    lLikGapMat(counts, models, ucs, mConst, lliks, nthreads, type);
+    return R_NilValue;
+END_RCPP
+}
+// pwhichmax
+Rcpp::IntegerVector pwhichmax(Rcpp::NumericMatrix posteriors, int nthreads);
+RcppExport SEXP _ehmm_pwhichmax(SEXP posteriorsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type posteriors(posteriorsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(pwhichmax(posteriors, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fitNB_inner
+Rcpp::List fitNB_inner(Rcpp::NumericVector counts, Rcpp::NumericVector posteriors, double initR, double tol, bool verbose, int nthreads);
+RcppExport SEXP _ehmm_fitNB_inner(SEXP countsSEXP, SEXP posteriorsSEXP, SEXP initRSEXP, SEXP tolSEXP, SEXP verboseSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type posteriors(posteriorsSEXP);
+    Rcpp::traits::input_parameter< double >::type initR(initRSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fitNB_inner(counts, posteriors, initR, tol, verbose, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fitModels
+Rcpp::List fitModels(Rcpp::NumericMatrix counts, Rcpp::NumericVector posteriors, Rcpp::List models, Rcpp::List ucs, std::string type, double tol, bool verbose, int nthreads);
+RcppExport SEXP _ehmm_fitModels(SEXP countsSEXP, SEXP posteriorsSEXP, SEXP modelsSEXP, SEXP ucsSEXP, SEXP typeSEXP, SEXP tolSEXP, SEXP verboseSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type posteriors(posteriorsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type models(modelsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type ucs(ucsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fitModels(counts, posteriors, models, ucs, type, tol, verbose, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fitModelsGapMat
+Rcpp::List fitModelsGapMat(SEXP counts, Rcpp::NumericVector posteriors, Rcpp::List models, Rcpp::List ucs, std::string type, double tol, int nthreads);
+RcppExport SEXP _ehmm_fitModelsGapMat(SEXP countsSEXP, SEXP posteriorsSEXP, SEXP modelsSEXP, SEXP ucsSEXP, SEXP typeSEXP, SEXP tolSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type posteriors(posteriorsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type models(modelsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type ucs(ucsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fitModelsGapMat(counts, posteriors, models, ucs, type, tol, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// checkInterrupt
+void checkInterrupt();
+RcppExport SEXP _ehmm_checkInterrupt() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    checkInterrupt();
+    return R_NilValue;
+END_RCPP
+}
 // smallWeightHamiltonianPath
 Rcpp::IntegerVector smallWeightHamiltonianPath(Rcpp::NumericMatrix dmat);
 RcppExport SEXP _ehmm_smallWeightHamiltonianPath(SEXP dmatSEXP) {
@@ -249,6 +675,38 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ehmm_forward_backward", (DL_FUNC) &_ehmm_forward_backward, 6},
+    {"_ehmm_viterbi", (DL_FUNC) &_ehmm_viterbi, 6},
+    {"_ehmm_testSchedule", (DL_FUNC) &_ehmm_testSchedule, 3},
+    {"_ehmm_testColPost", (DL_FUNC) &_ehmm_testColPost, 3},
+    {"_ehmm_tabFast", (DL_FUNC) &_ehmm_tabFast, 1},
+    {"_ehmm_labelCounts", (DL_FUNC) &_ehmm_labelCounts, 2},
+    {"_ehmm_clusterAverages2", (DL_FUNC) &_ehmm_clusterAverages2, 4},
+    {"_ehmm_clusterAverages", (DL_FUNC) &_ehmm_clusterAverages, 3},
+    {"_ehmm_fillPosteriors", (DL_FUNC) &_ehmm_fillPosteriors, 4},
+    {"_ehmm_rowdotprod", (DL_FUNC) &_ehmm_rowdotprod, 3},
+    {"_ehmm_discretizeRows", (DL_FUNC) &_ehmm_discretizeRows, 3},
+    {"_ehmm_splitAxes", (DL_FUNC) &_ehmm_splitAxes, 3},
+    {"_ehmm_splitAxesInt", (DL_FUNC) &_ehmm_splitAxesInt, 3},
+    {"_ehmm_KL_dist_mat_LN", (DL_FUNC) &_ehmm_KL_dist_mat_LN, 3},
+    {"_ehmm_KL_dist_mat", (DL_FUNC) &_ehmm_KL_dist_mat, 3},
+    {"_ehmm_findUniqueSeeds", (DL_FUNC) &_ehmm_findUniqueSeeds, 3},
+    {"_ehmm_support_openmp", (DL_FUNC) &_ehmm_support_openmp, 0},
+    {"_ehmm_llik2posteriors", (DL_FUNC) &_ehmm_llik2posteriors, 4},
+    {"_ehmm_mapToUnique", (DL_FUNC) &_ehmm_mapToUnique, 1},
+    {"_ehmm_getMultinomConst", (DL_FUNC) &_ehmm_getMultinomConst, 2},
+    {"_ehmm_getMultinomConstSW", (DL_FUNC) &_ehmm_getMultinomConstSW, 2},
+    {"_ehmm_sumAt", (DL_FUNC) &_ehmm_sumAt, 4},
+    {"_ehmm_colSumsInt", (DL_FUNC) &_ehmm_colSumsInt, 2},
+    {"_ehmm_colSumsDouble", (DL_FUNC) &_ehmm_colSumsDouble, 2},
+    {"_ehmm_rowSumsDouble", (DL_FUNC) &_ehmm_rowSumsDouble, 2},
+    {"_ehmm_lLikMat", (DL_FUNC) &_ehmm_lLikMat, 7},
+    {"_ehmm_lLikGapMat", (DL_FUNC) &_ehmm_lLikGapMat, 7},
+    {"_ehmm_pwhichmax", (DL_FUNC) &_ehmm_pwhichmax, 2},
+    {"_ehmm_fitNB_inner", (DL_FUNC) &_ehmm_fitNB_inner, 6},
+    {"_ehmm_fitModels", (DL_FUNC) &_ehmm_fitModels, 8},
+    {"_ehmm_fitModelsGapMat", (DL_FUNC) &_ehmm_fitModelsGapMat, 7},
+    {"_ehmm_checkInterrupt", (DL_FUNC) &_ehmm_checkInterrupt, 0},
     {"_ehmm_smallWeightHamiltonianPath", (DL_FUNC) &_ehmm_smallWeightHamiltonianPath, 1},
     {"_ehmm_setDim_unsafe", (DL_FUNC) &_ehmm_setDim_unsafe, 2},
     {"_ehmm_setDimnames_unsafe", (DL_FUNC) &_ehmm_setDimnames_unsafe, 2},

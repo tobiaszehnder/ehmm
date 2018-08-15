@@ -46,12 +46,12 @@ avgStateProfile <- function(genes, segm, nstates, before=200, after=200, reflen=
     rnames <- levels(sfact)
     cols <- ovstart; cols[cols<0] <- 0
     matidx <- rows + nstates*cols
-    mat1 <- kfoots:::sumAt(rep(1, length(matidx)), matidx, totlen, zeroIdx=T)
+    mat1 <- sumAt(rep(1, length(matidx)), matidx, totlen, zeroIdx=T)
     #for each end position decrease the count in the next column in mat
     ovend <- npos - ovend
     cols <- ovend
     matidx <- (rows + nstates*cols)[cols<npos]
-    mat2 <- kfoots:::sumAt(rep(1, length(matidx)), matidx, totlen, zeroIdx=T)
+    mat2 <- sumAt(rep(1, length(matidx)), matidx, totlen, zeroIdx=T)
     #final matrix
     mat <- matrix(mat1-mat2, nrow=nstates, ncol=npos)
     
@@ -189,7 +189,7 @@ automaticColoring <- function(clustmeans, markToCol=list(red="H3K4me3", green4="
     }
     
     #compute distance matrix
-    #dmat <- kfoots:::KL_dist_mat(clustmeans+1e-6, 1)
+    #dmat <- KL_dist_mat(clustmeans+1e-6, 1)
     dmat <- as.matrix(dist(t(log(clustmeans+1e-6))))
     #similarity matrix
     smat <- 1/dmat; smat[!is.finite(smat)] <- 1e200

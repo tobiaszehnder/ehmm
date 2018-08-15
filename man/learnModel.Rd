@@ -4,15 +4,18 @@
 \alias{learnModel}
 \title{Learn a model and produce a segmentation}
 \usage{
-learnModel(bamdir, regions, nstates, outdir = ".", nthreads = 1,
+learnModel(regions, nstates, bamtab, outdir = ".", nthreads = 1,
   pseudoCount = 1)
 }
 \arguments{
-\item{bamdir}{path to the bam-file directory.}
-
 \item{regions}{GRanges object containing the genomic regions of interest.}
 
 \item{nstates}{Number of states to learn.}
+
+\item{bamtab}{Data frame describing how to get the counts from each file. 
+The following columns are required:
+'mark' (name of the histone mark),
+'path' (path to the bam file).}
 
 \item{outdir}{path to the output directory.}
 

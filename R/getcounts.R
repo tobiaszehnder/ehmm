@@ -98,7 +98,7 @@ getcountsCLI <- function(args, prog){
 #'     labelled with the names of the list \code{marks}, and the columns
 #'     are the different bins in the regions.
 #' @export
-getcounts <- function(regions, bamtab, binsize=200, repFun=defaultRepFun, 
+getcounts <- function(regions, bamtab, binsize=100, repFun=defaultRepFun, 
                                                                     nthreads=1){
     #ARGUMENT CHECKING
     if (!inherits(regions, "GRanges")) stop("regions must be a GRanges object")

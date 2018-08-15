@@ -262,7 +262,7 @@ reportSegmList <- function(segmlist, labels, colors, outdir, prefix){
     segments <- unlist(segmlist, use.names=FALSE)
     tabPaths <- makePath(outdir, prefix, c("table.txt", "table.png"))
     inames <- as.integer(names(segments))
-    tab <- kfoots:::sumAt(width(segments), inames, size=nstates, zeroIdx=FALSE)
+    tab <- sumAt(width(segments), inames, size=nstates, zeroIdx=FALSE)
     tab <- tab/sum(tab)
     write.table(matrix(tab, ncol=1), col.names=F, row.names=F, file=tabPaths[1], quote=F, sep="\t")
     png(tabPaths[2])
@@ -350,7 +350,7 @@ expRank <- function(counts, mus, rs=Inf, normalize=T){
     if (length(mus) != length(rs)) stop("invalid number of rs provided (one or as many as the mus)")
     #rank when the simulated count has a value equal or less to the maximal empirical count
     #(separately for each count in [0, length(countsTab)-1])
-    countsTab <- kfoots:::tabFast(counts)
+    countsTab <- tabFast(counts)
     ccountsTab <- cumsum(countsTab)
     totc <- length(counts)
     maxc <- length(countsTab)-1

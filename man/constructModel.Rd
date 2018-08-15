@@ -5,9 +5,9 @@
 \title{Construct a total model by combining a background and two foreground models for enhancers and promoters.
 Prior to combining, the foreground models are refined by relearning the transition parameters.}
 \usage{
-constructModel(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p, regions.e,
-  regions.p, accStates.e, nucStates.e, accStates.p, nucStates.p, outdir = ".",
-  nthreads = 1)
+constructModel(model.bg, model.e, model.p, counts.e, counts.p, regions.e,
+  regions.p, accStates.e = NULL, nucStates.e = NULL, accStates.p = NULL,
+  nucStates.p = NULL, outdir = ".", nthreads = 1)
 }
 \arguments{
 \item{model.bg}{A list with the parameters that describe the background HMM.}
@@ -16,21 +16,21 @@ constructModel(model.bg, model.e, model.p, rpmCounts.e, rpmCounts.p, regions.e,
 
 \item{model.p}{A list with the parameters that describe the promoter HMM.}
 
-\item{rpmCounts.e}{rpm-normalized count matrix for enhancer training regions.}
+\item{counts.e}{count matrix for enhancer training regions.}
 
-\item{rpmCounts.p}{rpm-normalized count matrix for promoter training regions.}
+\item{counts.p}{count matrix for promoter training regions.}
 
 \item{regions.e}{GRanges object containing the enhancer training regions.}
 
 \item{regions.p}{GRanges object containing the promoter training regions.}
 
-\item{accStates.e}{String of comma-separated state-numbers for enhancer accessibility states.}
+\item{accStates.e}{String of comma-separated state-numbers for enhancer accessibility states. If not given, states selection will be automated.}
 
-\item{nucStates.e}{String of comma-separated state-numbers for enhancer nucleosome states.}
+\item{nucStates.e}{String of comma-separated state-numbers for enhancer nucleosome states. If not given, states selection will be automated.}
 
-\item{accStates.p}{String of comma-separated state-numbers for promoter accessibility states.}
+\item{accStates.p}{String of comma-separated state-numbers for promoter accessibility states. If not given, states selection will be automated.}
 
-\item{nucStates.p}{String of comma-separated state-numbers for promoter nucleosome states.}
+\item{nucStates.p}{String of comma-separated state-numbers for promoter nucleosome states. If not given, states selection will be automated.}
 
 \item{outdir}{path to the output directory}
 
