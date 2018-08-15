@@ -28,8 +28,7 @@ library(devtools)
 To install `ehmm` type:
 
 ```R
-install_github("benner/kfoots")
-install_github("zehnder/ehmm")
+install_github("tobiaszehnder/ehmm")
 ```
 
 ### Usage from the command line
