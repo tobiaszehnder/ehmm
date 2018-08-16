@@ -25,7 +25,7 @@ setting the `indir` environment variable
 to the value returned by the R code 
 `system.file("extdata", package="ehmm")`
 6. You have an output folder `${outdir}` where to store files created by 
-EpiCSeg. This could be a new empty directory to make sure that you are not
+eHMM. This could be a new empty directory to make sure that you are not
 overwriting anything.
 
 ### Typical workflow
@@ -39,7 +39,7 @@ Typically you just need to
 
 #### Creating the count matrix
 
-The main input of EpiCSeg are read counts for a set of histone marks. More 
+The main input of eHMM are read counts for a set of histone marks. More 
 precisely, you need to select which experiments to use (in BAM format, already 
 indexed), in which genomic regions to count the reads, and how large the bins 
 should be.
@@ -98,12 +98,12 @@ Note that:
 3. the count matrix refers to the refined regions (if it was necessary to 
 refine them).
 4. if you computed the count matrix and your regions by means other 
-than EpiCseg, that's totally fine, as long as the regions are a valid BED file,
+than eHMM, that's totally fine, as long as the regions are a valid BED file,
 the count matrix is tab separated and each column is labelled.
 
 #### Fitting the model and producing the segmentation
 
-Training EpiCSeg's model, inferring the state for each bin and producing an
+Training eHMM's model, inferring the state for each bin and producing an
 HTML report is done all at once by the `segment` subprogram.
 You just need to specify your regions (the refined ones, if it was necessary to
 refine them), your counts and the number of states that you want.
@@ -139,7 +139,7 @@ This creates a bunch of files with filenames starting with
 #### Producing a better report
 
 Suppose that you are not happy with the colors automatically assigned by 
-EpiCSeg, or you want to assign labels to each state, or you want to see where 
+eHMM, or you want to assign labels to each state, or you want to see where 
 the states tend to localize with respect to annotated genes. You can use the 
 `report` subprogram  for that. 
 
@@ -188,7 +188,7 @@ chromatin segmentation, where each set comes from a different individual or
 cell type, so that you can look at differences between chromatin states from
 one individual to another.
 
-To do this in EpiCSeg, you need a slightly different workflow:
+To do this in eHMM, you need a slightly different workflow:
 
 1. use the `getcounts` subprogram for each dataset/individuals/cell-types separately
 2. make the datasets comparable with the `normalizecounts` subprogram
