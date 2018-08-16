@@ -19,7 +19,7 @@ make
 
 # download genome file and create regions file
 wget http://hgdownload.cse.ucsc.edu/goldenPath/mm10/bigZips/mm10.chrom.sizes -O $indir/mm10.genome
-cat $indir/mm10.genome | grep -v "M" | grep -v "Un" | grep -v "random" | awk 'BEGIN{FS=OFS="\t"} {print $1, 100, int($2/100)*100}' > $indir/regions.bed 
+cat $indir/mm10.genome | grep -v "M" | grep -v "Un" | grep -v "random" | grep -v "hap" | grep -v "alt" | awk 'BEGIN{FS=OFS="\t"} {print $1, 100, int($2/100)*100}' > $indir/regions.bed 
 
 # run eHMM
 echo 'run eHMM'

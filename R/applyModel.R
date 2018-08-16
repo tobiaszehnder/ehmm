@@ -157,7 +157,7 @@ readGenomeSize <- function(genomeSize){
   df <- read.table(genomeSize)
   sizes <- df$V2
   names(sizes) <- df$V1
-  levelsToDrop <- unique(unlist(lapply(c('Un', 'M', 'random', 'hap'), function(x) which(grepl(x, names(sizes))))))
+  levelsToDrop <- unique(unlist(lapply(c('Un', 'M', 'random', 'hap', 'alt'), function(x) which(grepl(x, names(sizes))))))
   if (length(levelsToDrop) > 1) sizes <- sizes[-levelsToDrop]
   return(sizes)
 }
