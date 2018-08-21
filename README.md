@@ -2,9 +2,9 @@
 
 Enhancer prediction in R. For a full description and for citing us, see the following [article]():
 
-> T Zehnder, P Benner, L Glaser, A Fuchs, H-R Chung, S Meijsing, M Vingron (2018).
+> T Zehnder, P Benner, M Vingron (2018).
 
-For using eHMM from the command line, you can find the full manual [HERE!](/home/zehnder/programs/github/ehmm/inst/manual.html)
+For using eHMM from the command line, you can find the full manual [HERE!](/https://github.com/tobiaszehnder/ehmm/inst/manual.html)
 
 
 ### Installation

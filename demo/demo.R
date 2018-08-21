@@ -8,16 +8,17 @@ nthreads <- as.integer(readline(prompt='Number of threads to be used (default: 1
 if (is.na(nthreads) || nthreads < 1) nthreads <- 11
 
 # define paths and create folders
-bamdir <- 'bam'
-outdir <- 'output'
+root <- paste(normalizePath('.'), 'ehmm_demo', sep='/')
+bamdir <- sprintf('%s/bam', root)
+outdir <- sprintf('%s/output', root)
 system(sprintf('mkdir -p %s %s', bamdir, outdir))
 
 # load genomeSize and regions objects
-load(system.file("extdata", "demo.rdata", package="ehmm", mustWork=TRUE))
+load(system.file('extdata', 'demo.rdata', package='ehmm', mustWork=TRUE))
 
 # download and preprocess bam files
 cat('download and preprocess bam files')
-getBams_path <- system.file("examples", "getBams.sh", package="ehmm", mustWork=TRUE)
+getBams_path <- system.file('examples', 'getBams.sh', package='ehmm', mustWork=TRUE)
 system(getBams_path)
 
 # create bamtab file for ehmm's applyModel

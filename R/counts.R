@@ -64,7 +64,7 @@ getCountMatrix <- function(regions, bamtab, outdir=NULL, binsize=100, nthreads=1
   
   # make bamtab object
   # default shift is 75. set to 0 in case of ATAC / DHS
-  bamtab$shift <- sapply(tolower(bamtab$mark), function(m) ifelse(any(sapply(c('atac', 'dhs', 'dnase'), function(s) grepl(s, m))), 0, 75))
+  bamtab$shift <- sapply(tolower(bamtab$mark), function(m) ifelse(any(sapply(c('atac', 'dhs', 'dnase', 'acc'), function(s) grepl(s, m))), 0, 75))
   
   # create count matrix
   counts <- getcounts(regions, bamtab, binsize=binsize, nthreads=nthreads) + pseudoCount
