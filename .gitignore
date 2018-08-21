@@ -1,0 +1,16 @@
+#compiled files
+*.o
+*.so
+
+#R history
+.Rhistory
+
+#git message file
+git_msg
+
+#backup files
+*~
+
+#image files
+*.svg
+*.png
