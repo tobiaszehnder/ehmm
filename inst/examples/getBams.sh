@@ -1,7 +1,7 @@
 #! /usr/bin/make -f
 
 ROOT = $(realpath .)
-DATA_DIR = $(ROOT)/inputfiles/bam
+DATA_DIR = $(ROOT)/bam
 
 ATAC-seq_DIR = $(DATA_DIR)/ATAC-seq
 H3K27AC_DIR = $(DATA_DIR)/H3K27AC
@@ -55,3 +55,9 @@ $(ATAC-seq_ENC_BAM): %.bam:
 
 %.sort.rmdup.bam: %.sort.bam
 	samtools rmdup -s $< $@
+
+# keep intermediate files and delete files whenever an error occurs and set 'all' target to be phony
+# ------------------------------------------------------------------------------
+.DELETE_ON_ERROR:
+.SECONDARY:
+.PHONY: all 

@@ -12,11 +12,11 @@ For using eHMM from the command line, you can find the full manual [HERE!](/home
 `ehmm` needs R 3.2 (or newer) and depends on Bioconductor packages, CRAN packages, and another package from github. 
 For the installation, most of the work is done by the function `devtools::install_github`. Because lately this function cannot resolve Bioconductor dependencies anymore (see this issue: https://github.com/hadley/devtools/issues/700), we will need to install some Bioconductor packages manually.
 
-The Bioconductor dependencies are `IRanges`, `GenomicRanges`, `bamsignals` and `edgeR`. At the interactive R terminal, type:
+The Bioconductor dependencies are `IRanges`, `GenomicRanges`, `bamsignals`, `edgeR` and `affyPLM`. At the interactive R terminal, type:
 
 ```R
 source("http://bioconductor.org/biocLite.R")
-biocLite(c("IRanges", "GenomicRanges", "bamsignals", "edgeR"))
+biocLite(c("IRanges", "GenomicRanges", "bamsignals", "edgeR", "affyPLM"))
 ```
 
 Install and load the `devtools` package to be able to directly install R packages hosted on github :
@@ -48,3 +48,10 @@ you have execution permission on the file `.ehmm.R`.
 `Rscript ehmm.R subprogram`
 
 
+### Demo
+
+You can run a demo of eHMM that will download and process bam-files from ENCODE, and predict enhancers on the full genome of mm10:
+
+1. Start R
+2. Load the package `library(ehmm)`
+3. Type `demo('demo', package='ehmm')`
