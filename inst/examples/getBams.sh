@@ -1,6 +1,6 @@
 #! /usr/bin/make -f
 
-ROOT = $(realpath .)
+ROOT = $(realpath ehmm_demo)
 DATA_DIR = $(ROOT)/bam
 
 ATAC-seq_DIR = $(DATA_DIR)/ATAC-seq
