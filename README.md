@@ -50,7 +50,7 @@ you have execution permission on the file `.ehmm.R`.
 
 ### Demo
 
-You can run a demo of eHMM that will download and process bam-files from ENCODE, and predict enhancers on the full genome of mm10:
+To get an impression on how to use eHMM, you can run a demo that will download and process bam-files of mouse embryo liver E16.5 cells from ENCODE, and predict enhancers genome-wide.
 
 1. Start R
 2. Load the package `library(ehmm)`
