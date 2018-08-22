@@ -54,4 +54,4 @@ You can run a demo of eHMM that will download and process bam-files from ENCODE,
 
 1. Start R
 2. Load the package `library(ehmm)`
-3. Type `demo('demo', package='ehmm')`
+3. Type `demo('demo', package='ehmm', ask=FALSE)`

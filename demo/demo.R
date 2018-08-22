@@ -30,6 +30,4 @@ bamtab <- ehmm:::makeBamtab(sapply(bamfiles, function(f) sprintf('%s:%s', gsub('
 
 # run eHMM
 cat('run eHMM')
-library(rtracklayer); regions <- regions[1]; start(regions) <- 1000001; end(regions) <- 1100000
-print(regions)
 ehmm::applyModel(regions=regions, genomeSize=genomeSize, bamtab=bamtab, provideModel=TRUE, nthreads=nthreads, outdir=outdir)
