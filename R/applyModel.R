@@ -17,7 +17,7 @@ getApplyModelOptions <- function(){
          those specified in the bed file. Entries with the same mark name will
          be treated as replicates and collapsed into one experiment.
          This option must be repeated for each mark, for example:
-         `-m H3K4me3:/path1/foo1.bam -m H3K36me3:/path2/foo2.bam`"),
+         `--mark H3K4me3:/path1/foo1.bam --mark H3K36me3:/path2/foo2.bam`"),
     list(arg="--outdir", type="character",
          help="Path to the output directory."),
     list(arg="--nthreads", type="integer", default=formals(applyModel)$nthreads,
