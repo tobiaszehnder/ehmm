@@ -108,6 +108,11 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   
   # if reference count matrix is given, quantile normalize query count matrix
   if (!(is.null(refCounts))){
+    # if regions seqnames don't match to the genomeSize names, the regions are probably in the annoying NCBI style ("1" instead of "chr1")
+    # if so, change genomeSize format to NCBI.
+    if (!all(as.vector(unique(seqnames(regions))) %in% names(genomeSize))){ 
+      names(genomeSize) <- gsub('chr', '', names(genomeSize))
+    }
     counts <- quantileNormalizeCounts(counts=counts, refCounts=refCounts, regions=regions, genomeSize=genomeSize,
                                       bamtab=bamtab, outdir=outdir, nthreads=nthreads)
   }
