@@ -202,7 +202,9 @@ reportModel <- function(model, labels, statecolors, outdir, prefix){
     if (type == "negmultinom"){
        nbs <- getNBs(model$emisP)
        means <- getMeanMatrix(model$emisP)
+       print(1)
        rownames(means) <- model$marks
+       print(2)
        #find a good permutation of the marks for plotting
        #determine a distance matrix between marks
        lmeans <- log(means + 1)
@@ -224,8 +226,11 @@ reportModel <- function(model, labels, statecolors, outdir, prefix){
     }
     else if (type == 'lognormal'){
       nstates <- length(model$emisP); nmarks <- length(model$marks)
-      lmeans <- sapply(1:nstates, function(i) c(model$emisP[[i]]$mus))
+      lmeans <- matrix(sapply(1:nstates, function(i) c(model$emisP[[i]]$mus)), nrow=nmarks)
+      print(3)
+      print(lmeans)
       rownames(lmeans) <- model$marks; colnames(lmeans) <- names(model$emisP)
+      print(4)
       # dmat <- as.matrix(dist(means, method="euclidean"))
       # marksOrder <- smallWeightHamiltonianPath(dmat)
       marksOrder <- 1:nmarks # no state reordering
@@ -377,8 +382,8 @@ expRank <- function(counts, mus, rs=Inf, normalize=T){
 #the order of the states must match between 'means' and 'rs'
 #in the result, rows are marks, columns are states
 expRankMatrix <- function(counts, means, rs, normalize=T){
-    if (any(rownames(means) != rownames(counts))) stop("mean matrix not matching")
-    
+    if (any(rownames(means) != rownames(as.matrix(counts)))) stop("mean matrix not matching")
+  
     #loop on the marks
     erm <- t(sapply(1:nrow(means), function(i){
         expRank(counts[i,], means[i,], rs, normalize=normalize)
