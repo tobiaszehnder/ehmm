@@ -12,11 +12,11 @@ For using eHMM from the command line, you can find the full manual [HERE!](https
 `ehmm` needs R 3.2 (or newer) and depends on Bioconductor packages, CRAN packages, and another package from github. 
 For the installation, most of the work is done by the function `devtools::install_github`. Because lately this function cannot resolve Bioconductor dependencies anymore (see this issue: https://github.com/hadley/devtools/issues/700), we will need to install some Bioconductor packages manually.
 
-The Bioconductor dependencies are `IRanges`, `GenomicRanges`, `bamsignals`, `edgeR` and `affyPLM`. At the interactive R terminal, type:
+The Bioconductor dependencies are `IRanges`, `GenomicRanges`, `bamsignals`, `rtracklayer`, `Rsamtools`, `edgeR` and `affyPLM`. At the interactive R terminal, type:
 
 ```R
 source("http://bioconductor.org/biocLite.R")
-biocLite(c("IRanges", "GenomicRanges", "bamsignals", "edgeR", "affyPLM"))
+biocLite(c("IRanges", "GenomicRanges", "bamsignals", "rtracklayer", "Rsamtools", "edgeR", "affyPLM"))
 ```
 
 Install and load the `devtools` package to be able to directly install R packages hosted on github :
