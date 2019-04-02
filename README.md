@@ -1,8 +1,8 @@
 ## eHMM
 
-Enhancer prediction in R. For a full description and for citing us, see the following [article]():
+Enhancer prediction in R. For a full description and for citing us, see the following [article](https://doi.org/10.1186/s12859-019-2708-6):
 
-> T Zehnder, P Benner, M Vingron (2018).
+> T Zehnder, P Benner, M Vingron (2019). Predicting enhancers in mammalian genomes using supervised hidden Markov models. BMC Bioinformatics 2019, 20:157
 
 For using eHMM from the command line, you can find the full manual [HERE!](https://rawgit.com/tobiaszehnder/ehmm/master/inst/manual.html)
 
