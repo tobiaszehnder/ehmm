@@ -19,16 +19,10 @@ install.packages("BiocManager")
 BiocManager::install(c("IRanges", "GenomicRanges", "bamsignals", "rtracklayer", "Rsamtools", "edgeR", "affyPLM"))
 ```
 
-Install and load the `devtools` package to be able to directly install R packages hosted on github :
+Install the `devtools` package to be able to directly install R packages hosted on github and use it to install `ehmm`:
 ```R
 install.packages("devtools")
-library(devtools)
-```
-
-To install `ehmm` type:
-
-```R
-install_github("tobiaszehnder/ehmm")
+devtools::install_github("tobiaszehnder/ehmm")
 ```
 
 ### Usage from the command line
