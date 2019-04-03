@@ -15,8 +15,8 @@ For the installation, most of the work is done by the function `devtools::instal
 The Bioconductor dependencies are `IRanges`, `GenomicRanges`, `bamsignals`, `rtracklayer`, `Rsamtools`, `edgeR` and `affyPLM`. At the interactive R terminal, type:
 
 ```R
-source("http://bioconductor.org/biocLite.R")
-biocLite(c("IRanges", "GenomicRanges", "bamsignals", "rtracklayer", "Rsamtools", "edgeR", "affyPLM"))
+install.packages("BiocManager")
+BiocManager::install(c("IRanges", "GenomicRanges", "bamsignals", "rtracklayer", "Rsamtools", "edgeR", "affyPLM"))
 ```
 
 Install and load the `devtools` package to be able to directly install R packages hosted on github :
