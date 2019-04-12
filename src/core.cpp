@@ -2,7 +2,7 @@
 #include <algorithm> 
 #include <unordered_map>
 #include <Rcpp.h>
-#include <math.h>
+#include <cmath>
 #include "optim.cpp"
 #ifdef SUPPORT_OPENMP
     #include <omp.h>
