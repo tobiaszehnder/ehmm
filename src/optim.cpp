@@ -4,11 +4,8 @@
 #include <stdexcept> 
 #include <iostream>
 
-extern "C" {
-	#include <R.h>
-	#include <R_ext/Applic.h>
-}
-
+#include <Rcpp.h>
+#include <R_ext/Applic.h>
 
 /*
 	* Just a wrapper around the optim function call in R

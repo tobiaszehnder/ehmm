@@ -6,7 +6,7 @@
 #ifdef SUPPORT_OPENMP
     #include <omp.h>
 #endif
-#include <signal.h>
+#include <csignal>
 
 /* Matrix and vector classes.
  * All these classes do not own the memory (no alloc/dealloc), they
