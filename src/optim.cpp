@@ -1,5 +1,5 @@
-#include <float.h> 
-#include <math.h> 
+#include <cfloat> 
+#include <cmath> 
 #include <string>
 #include <stdexcept> 
 #include <iostream>
