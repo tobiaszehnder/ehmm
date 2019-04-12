@@ -25,6 +25,7 @@ install.packages("devtools")
 devtools::install_github("tobiaszehnder/ehmm")
 ```
 
+#### macOS
 macOS users (Mojave and later) potentially need to install Clang compiler `clang6` from `https://cran.r-project.org/bin/macosx/tools/`
 
 and install the header files with the following command:
