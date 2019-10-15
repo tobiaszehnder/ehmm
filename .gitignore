@@ -14,3 +14,6 @@ git_msg
 #image files
 *.svg
 *.png
+
+#ehmm.R file
+ehmm.R

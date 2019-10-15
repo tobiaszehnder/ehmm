@@ -78,7 +78,9 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
     cat('No model specified. Provided mESC model will be used.')
     provideModel <- TRUE
   }
-  
+  # create outdir if it does not exist
+  dir.create(file.path(outdir), showWarnings=FALSE)
+
   # remove unnamed, random and mitochondrial chromosomes from regions' seqlevels
   levelsToDrop <- unique(unlist(lapply(c('Un', 'M', 'random', 'hap', 'alt', 'GL', 'NC', 'hs'), function(x) which(grepl(x, GenomeInfoDb:::seqlevels(regions))))))
   if (length(levelsToDrop) > 0) GenomeInfoDb:::seqlevels(regions) <- GenomeInfoDb:::seqlevels(regions)[-levelsToDrop]
