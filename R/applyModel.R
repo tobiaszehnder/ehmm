@@ -153,7 +153,7 @@ extractRegions <- function(segmentation, regions, genomeSize, outdir){
     export.bw(gr, sprintf('%s/%s.scores.bw', outdir, elmName))
     # export.bed(gr, sprintf('%s/%s.scores.bed', outdir, elmName))
     regionsBedfile <- sprintf('%s/%sRegions.bed', outdir, elmName)
-    elms.tiled <- gr[startsWith(gr$name, label)]
+    elms.tiled <- gr[startsWith(gr$name, paste0(label, '_A'))] # only save accessibility states
     file.create(regionsBedfile)
     if (length(elms.tiled) > 0){
       elms <- aggScore(reduce(elms.tiled), elms.tiled, 'max')
