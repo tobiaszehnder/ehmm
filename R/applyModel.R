@@ -144,7 +144,7 @@ extractRegions <- function(segmentation, regions, genomeSize, outdir){
   # this function tiles regions into 100 bp windows, assigns viterbi states and scores, extracts enhancer / promoter regions according to viterbi decoding,
   # and writes both scores and decoded elements to file
   labels <- segmentation$model$labels
-  gr <- do.call('c', tile(regions, width=100))
+  gr <- unlist(tile(regions, width=100))
   GenomeInfoDb:::seqlengths(gr) <- genomeSize[GenomeInfoDb:::seqlevels(gr)]
   gr$name <- labels[segmentation$viterbi]
   mapply(function(scores, elmName){

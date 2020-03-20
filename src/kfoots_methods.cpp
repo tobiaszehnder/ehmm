@@ -422,24 +422,24 @@ inline Rcpp::List fitModels_helper(TMat<double> counts, Rcpp::NumericVector post
     {
       #pragma omp for schedule(static)
       for (int mod = 0; mod < nmodels; ++mod){
-	double* musCol = musln.colptr(mod);
+		double* musCol = musln.colptr(mod);
 	
-	for (int row = 0; row < footlen; ++row){
-	  double mu = 0;
-	  double psum = 0;
+		for (int row = 0; row < footlen; ++row){
+		  double mu = 0;
+		  double psum = 0;
 
-	  for (int col = 0; col < ncol; ++col){
-	    double c = counts.get(row,col);
-	    double logcount = log(c);
-	    double p = postMat.colptr(col)[mod];
-	    mu += logcount * p;
-	    psum += p;
-	  }
-	  // only update mu if there are positions at which the probability of being in state 'mod' is above zero. otherwise just let it at the old values.
-	  if (psum > 0){
-		musCol[row] = mu / psum;
-	  }
-	}
+		  for (int col = 0; col < ncol; ++col){
+			double c = counts.get(row,col);
+			double logcount = log(c);
+			double p = postMat.colptr(col)[mod];
+			mu += logcount * p;
+			psum += p;
+		  }
+		  // only update mu if there are positions at which the probability of being in state 'mod' is above zero. otherwise just let it at the old values.
+		  if (psum > 0){
+			musCol[row] = mu / psum;
+		  }
+		}
       }
     }
     // calculate new sigma squares
@@ -447,26 +447,26 @@ inline Rcpp::List fitModels_helper(TMat<double> counts, Rcpp::NumericVector post
     {
       #pragma omp for schedule(static)
       for (int mod = 0; mod < nmodels; ++mod){
-	double* musCol = musln.colptr(mod);
-	double* sigmasqsCol = sigmasqsln.colptr(mod);
-	
-	for (int row = 0; row < footlen; ++row){
-	  double mu = musCol[row];
-	  double psum = 0;
-	  double sigmasq = 0;
-	  
-	  for (int col = 0; col < ncol; ++col){
-	    double c = counts.get(row,col);
-	    double logcount = log(c);
-	    double p = postMat.colptr(col)[mod];
-	    sigmasq += (std::pow((logcount - mu),2) * p);
-	    psum += p;
-	  }
-	  if (psum > 0){
-		sigmasqsCol[row] = sigmasq / psum;
-	  }
-	  if (sigmasqsCol[row] < 1e-6) sigmasqsCol[row] = 1e-6;
-	}
+		double* musCol = musln.colptr(mod);
+		double* sigmasqsCol = sigmasqsln.colptr(mod);
+		
+		for (int row = 0; row < footlen; ++row){
+		  double mu = musCol[row];
+		  double psum = 0;
+		  double sigmasq = 0;
+		  
+		  for (int col = 0; col < ncol; ++col){
+			double c = counts.get(row,col);
+			double logcount = log(c);
+			double p = postMat.colptr(col)[mod];
+			sigmasq += (std::pow((logcount - mu),2) * p);
+			psum += p;
+		  }
+		  if (psum > 0){
+			sigmasqsCol[row] = sigmasq / psum;
+		  }
+		  if (sigmasqsCol[row] < 1e-6) sigmasqsCol[row] = 1e-6;
+		}
       }
     }
   } else if (type=="nofit" || type=="pois"){
