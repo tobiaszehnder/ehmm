@@ -180,7 +180,7 @@ aggScore <- function(gr.reference, gr.tiled, func, aggName=F){
   ov <- findOverlaps(gr.reference, gr.tiled)
   aggSc <- aggregate(gr.tiled$score[subjectHits(ov)], list(queryHits(ov)), get(func))
   gr.reference$score <- 0
-  gr.reference$score[unique(subjectHits(ov))] <- aggSc$x
+  gr.reference$score[unique(queryHits(ov))] <- aggSc$x
   if (aggName && !is.null(gr.tiled$name)) gr.reference$name <- aggregate(gr.tiled$name[subjectHits(ov)], list(queryHits(ov)), 'unique')$x
   return(gr.reference)
 }
