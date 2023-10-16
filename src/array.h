@@ -275,7 +275,7 @@ inline void dgemm(Mat<double>& A, Mat<double>& B, Mat<double>& C, double alpha=1
     }
     
     F77_CALL(dgemm)(TA, TB, &M, &N, &K, &alpha, A.ptr, &A.nrow, 
-                B.ptr, &B.nrow, &beta, C.ptr, &C.nrow);
+                B.ptr, &B.nrow, &beta, C.ptr, &C.nrow, 1, 1);
 }
 
 //y := alpha*op(A)*x + beta*y
@@ -292,7 +292,7 @@ inline void dgemv(Mat<double> A, Vec<double> X, Vec<double> Y, double alpha=1, d
     }
     
     F77_CALL(dgemv)(T, &A.nrow, &A.ncol, &alpha, A.ptr, &A.nrow, X.ptr, &one, 
-            &beta, Y.ptr, &one);
+            &beta, Y.ptr, &one, 1);
 }
 
 
