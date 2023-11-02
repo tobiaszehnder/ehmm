@@ -9,59 +9,78 @@
 #every field is optional if input=FALSE, otherwise every field is mandatory
 #fields must be consistent
 #return a list(nstates, nmarks)
-validateModel <- function(model, strict=FALSE, type="dep"){
-  if (is.null(model)) stop("NULL is not a valid model")
-    optArgs <- c("nstates", "marks", "labels", "colors", "emisP", "transP", "initP")
-    if (is.null(names(model))) stop("model's element must be named")
-    # if (!all(names(model) %in% optArgs)) warning("some arguments will be ignored (incorrect naming?)")
-    if (!strict && !all(optArgs %in% names(model))) stop(paste("a model requires the following fields:", paste(optArgs, collapse=", ")))
-    
-    nstates <- model$nstates #can be NULL
-    nmarks <- NULL
-    if (!is.null(model$marks)) {
-        if (anyDuplicated(model$marks)) stop("model$marks cannot contain duplicate entries")
-        nmarks <- length(model$marks)
+validateModel <- function (model, strict = FALSE, type = "dep") {
+  if (is.null(model))
+    stop("NULL is not a valid model")
+  optArgs <- c("nstates", "marks", "labels", "colors", "emisP",
+               "transP", "initP")
+  if (is.null(names(model)))
+    stop("model's element must be named")
+  if (!strict && !all(optArgs %in% names(model)))
+    stop(paste("a model requires the following fields:",
+               paste(optArgs, collapse = ", ")))
+  nstates <- model$nstates
+  nmarks <- NULL
+  if (!is.null(model$marks)) {
+    if (anyDuplicated(model$marks))
+      stop("model$marks cannot contain duplicate entries")
+    nmarks <- length(model$marks)
+  }
+  if (!is.null(model$emisP)) {
+    if (!is.list(model$emisP))
+      stop("'model$emissP' must be a list'")
+    if (!is.null(nstates)) {
+      if (length(model$emisP) != nstates)
+        stop("incorrect number of emission probabilities provided")
     }
-    #check emission probabilities
-    if (!is.null(model$emisP)){
-        if (!is.list(model$emisP)) stop("'model$emissP' must be a list'")
-        if (!is.null(nstates)){
-            if (length(model$emisP)!=nstates) stop("incorrect number of emission probabilities provided")
-        } else nstates <- length(model$emisP)
-	for (nm in model$emisP){
-	    if (type == "lognormal") {
-	       needPars <- c("mus", "sigmasqs")
-	       if (!all(needPars %in% names(nm))) stop("missing fields from the emission probabilities")
-               if (any(is.na(unlist(nm)))) stop("NAs/NaNs in the emission probabilities not allowed")
-               if (is.null(nmarks)) nmarks <- length(nm$mus)
-               if (length(nm$mus) != nmarks) stop("invalid parameters for the emission probabilities")
-	    }
-	    else {
-	       needPars <- c("mu", "r", "ps")
-	       if (!all(needPars %in% names(nm))) stop("missing fields from the emission probabilities")
-               if (any(is.na(unlist(nm)))) stop("NAs/NaNs in the emission probabilities not allowed")
-               if (is.null(nmarks)) nmarks <- length(nm$ps)
-               if (length(nm$ps) != nmarks) stop("invalid parameters for the emission probabilities")
-               if (!isProbVector(nm$ps)) stop("'model$emissP[[i]]$ps' must sum up to 1 for every i")
-	    }
-	}
+    else nstates <- length(model$emisP)
+    for (nm in model$emisP) {
+      if (type == "lognormal") {
+        needPars <- c("mus", "sigmasqs")
+        if (!all(needPars %in% names(nm)))
+          stop("missing fields from the emission probabilities")
+        if (any(is.na(unlist(nm))))
+          stop("NAs/NaNs in the emission probabilities not allowed")
+        if (is.null(nmarks))
+          nmarks <- length(nm$mus)
+        if (length(nm$mus) != nmarks)
+          stop("invalid parameters for the emission probabilities")
+      }
+      else {
+        needPars <- c("mu", "r", "ps")
+        if (!all(needPars %in% names(nm)))
+          stop("missing fields from the emission probabilities")
+        if (any(is.na(unlist(nm))))
+          stop("NAs/NaNs in the emission probabilities not allowed")
+        if (is.null(nmarks))
+          nmarks <- length(nm$ps)
+        if (length(nm$ps) != nmarks)
+          stop("invalid parameters for the emission probabilities")
+        if (!isProbVector(nm$ps))
+          stop("'model$emissP[[i]]$ps' must sum up to 1 for every i")
+      }
     }
-    #check transition probabilities
-    if (!is.null(model$transP)){
-        #validate transition probabilities (additional validation performed in kfoots)
-        if (!is.matrix(model$transP) || ncol(model$transP)!=nrow(model$transP) ||
-                (!is.null(nstates) && nstates != ncol(model$transP))) stop("invalid trasition probabilities")
-        if (!all(apply(model$transP, 1, isProbVector))) stop("rows of model$transP must sum up to 1")
-        if (is.null(nstates)) nstates <- nrow(model$transP)
-    }
-    
-    #check initial probabilities
-    if (!is.null(model$initP)){
-        if (!is.matrix(model$initP) || (!is.null(nstates) && nrow(model$initP) != nstates)) stop("invalid initial probabilities")
-        if (!all(apply(model$initP, 2, isProbVector))) stop("columns of model$initP must sum up to 1")
-        if (is.null(nstates)) nstates <- nrow(model$initP)
-    }
-    list(nstates=nstates, nmarks=nmarks)
+  }
+  if (!is.null(model$transP)) {
+    if (!is.matrix(model$transP) || ncol(model$transP) !=
+        nrow(model$transP) || (!is.null(nstates) && nstates !=
+                               ncol(model$transP)))
+      stop("invalid trasition probabilities")
+    if (!all(apply(model$transP, 1, isProbVector)))
+      stop("rows of model$transP must sum up to 1")
+    if (is.null(nstates))
+      nstates <- nrow(model$transP)
+  }
+  if (!is.null(model$initP)) {
+    if (!is.matrix(model$initP) || (!is.null(nstates) &&
+                                    nrow(model$initP) != nstates))
+      stop("invalid initial probabilities")
+    if (!all(apply(model$initP, 2, isProbVector)))
+      stop("columns of model$initP must sum up to 1")
+    if (is.null(nstates))
+      nstates <- nrow(model$initP)
+  }
+  list(nstates = nstates, nmarks = nmarks)
 }
 
 
@@ -169,8 +188,68 @@ rowsToStr <- function(mat){
     apply(mat, 1, paste, collapse="\t")
 }
 
+readModel <- function (path) {
+  tryCatch({
+    txt <- readLines(path)
+    allowedIdxs <- 1:length(txt)
+    nstates <- parseNstates(txt)
+    marks <- ifHasField(txt, "marks", 1, function(lines) {
+      strsplit(lines, "\t")[[1]]
+    })
+    labels <- NULL
+    labels <- ifHasField(txt, "labels", 1, function(lines) {
+      strsplit(lines, ",")[[1]]
+    })
+    colors <- NULL
+    colors <- ifHasField(txt, "colors", 1, function(lines) {
+      strsplit(lines, ",")[[1]]
+    })
+    firstline.E <- which(txt == "emisP") + 1
+    if (grepl("\\|", strsplit(txt[firstline.E], "\t")[[1]][1]))
+      modeltype <- "lognormal"
+    else modeltype <- "negmultinom"
+    if (modeltype == "negmultinom") {
+      emisP <- ifHasField(txt, "emisP", nstates, function(lines) {
+        emisMat <- parseRows(lines)
+        lapply(1:nstates, function(i) {
+          params <- emisMat[i, ]
+          r = params[1]
+          mus <- params[2:ncol(emisMat)]
+          mu <- sum(mus)
+          if (mu == 0) {
+            ps <- rep(1/length(marks), length(marks))
+          }
+          else ps <- mus/mu
+          list(mu = mu, r = r, ps = ps)
+        })
+      })
+    }
+    else if (modeltype == "lognormal") {
+      emis.params <- as.numeric(unlist(strsplit(txt[firstline.E:(firstline.E +
+                                                                   nstates - 1)], "[\t|]+")))
+      mus <- matrix(emis.params[seq(1, length(emis.params),
+                                    2)], nrow = nstates, byrow = T)
+      sigmasqs <- matrix(emis.params[seq(2, length(emis.params),
+                                         2)], nrow = nstates, byrow = T)
+      emisP <- lapply(1:nstates, function(i) list(mus = mus[i,
+      ], sigmasqs = sigmasqs[i, ]))
+    }
+    transP <- ifHasField(txt, "transP", nstates, parseRows)
+    initP <- ifHasField(txt, "initP", nstates, parseRows)
+    model <- list(nstates = nstates, marks = marks, emisP = emisP,
+                  transP = transP, initP = initP)
+    if (!is.null(labels))
+      model$labels <- labels
+    if (!is.null(colors))
+      model$colors <- colors
+    # validateModel(model, strict = TRUE, type = modeltype)
+  }, error = function(e) {
+    stop(paste0("Unable to parse the model file:\n", e$message))
+  })
+  model
+}
 
-readModel <- function(path){
+readModelOriginal <- function(path){
     tryCatch({
         txt <- readLines(path)
         allowedIdxs <- 1:length(txt)
@@ -290,41 +369,63 @@ initializeParams <- function(model, states.a, states.n){
   return(model)
 }
 
-combineFgBgModels <- function(model.bg, model.e, model.p){
-  # this function combines a background, enhancer and promoter model, setting 'forbidden' transitions to zoer, e.g. bg -> accessible
-  
-  # combine labels, colors, set marks and nstates
+combineFgBgModels <- function (model.bg, model.e, model.p) {
   labels <- c(model.e$labels, model.p$labels, model.bg$labels)
   colors <- c(model.e$colors, model.p$colors, model.bg$colors)
   nstates <- sum(model.e$nstates, model.p$nstates, model.bg$nstates)
   marks <- model.e$marks
-  
-  # combine emisP lists
   E <- c(model.e$emisP, model.p$emisP, model.bg$emisP)
-  
-  # combine transP matrices
-  nEnhancers <- 399124 # Bernstein et al. 2012, ENCODE, https://www.nature.com/articles/nature11247: Number of regions with enhancer-like features.
-  nPromoters <- 70292 # Bernstein et al. 2012, ENCODE, https://www.nature.com/articles/nature11247: Number of regions with promoter-like features.
-  nBins <- 30000000 # hg19: 30'956'738, mm10: 27'255'182
-  enhancerFreq <- nEnhancers / nBins
-  promoterFreq <- nPromoters / nBins
-  states.n1.e <- which(startsWith(labels, 'E_N1')); states.a.e <- which(startsWith(labels, 'E_A')); states.n2.e <- which(startsWith(labels, 'E_N2'))
-  states.n1.p <- which(startsWith(labels, 'P_N1')); states.a.p <- which(startsWith(labels, 'P_A')); states.n2.p <- which(startsWith(labels, 'P_N2'))
-  states.bg <- which(startsWith(labels, 'bg'))
+  nEnhancers <- 399124
+  nPromoters <- 70292
+  nBins <- 3e+07
+  enhancerFreq <- nEnhancers/nBins
+  promoterFreq <- nPromoters/nBins
+  states.n1.e <- which(startsWith(labels, "E_N1"))
+  states.a.e <- which(startsWith(labels, "E_A"))
+  states.n2.e <- which(startsWith(labels, "E_N2"))
+  states.n1.p <- which(startsWith(labels, "P_N1"))
+  states.a.p <- which(startsWith(labels, "P_A"))
+  states.n2.p <- which(startsWith(labels, "P_N2"))
+  states.bg <- which(startsWith(labels, "bg"))
   A <- as.matrix(bdiag(model.e$transP, model.p$transP, model.bg$transP))
-  A[states.bg, states.n1.e] <- enhancerFreq / (length(states.bg) * length(states.n1.e))
-  A[states.bg, states.n1.p] <- promoterFreq / (length(states.bg) * length(states.n1.p))
-  A[states.bg, states.bg] <- A[states.bg, states.bg] * (1 - rowSums(A[states.bg, c(states.n1.e, states.n1.p)]))
-  A[states.n2.e, states.bg] <- rowSums(A[states.n1.e, states.a.e]) / length(states.bg)
-  A[states.n2.p, states.bg] <- rowSums(A[states.n1.p, states.a.p]) / length(states.bg)
-  A[states.n2.e, states.n2.e] <- A[states.n2.e, states.n2.e] * (1 - rowSums(A[states.n2.e, states.bg]))
-  A[states.n2.p, states.n2.p] <- A[states.n2.p, states.n2.p] * (1 - rowSums(A[states.n2.p, states.bg]))
+  # solve NaN issue
+  problem <- A[is.nan(rowSums(A))]
+  rest <- 1-sum(problem, na.rm = T)
+  problem[is.nan(problem)] <- rest/length(problem[is.nan(problem)])
+  A[is.nan(rowSums(A))] <- problem
   
-  # set uniform initial probs for 'allowed' states (bg, N1)
-  I <- matrix(rep(0,nstates))
-  I[c(states.n1.e, states.n1.p, states.bg)] <- 1 / length(c(states.n1.e, states.n1.p, states.bg))
+  A[states.bg, states.n1.e] <- enhancerFreq/(length(states.bg) *
+                                               length(states.n1.e))
+  A[states.bg, states.n1.p] <- promoterFreq/(length(states.bg) *
+                                               length(states.n1.p))
+  A[states.bg, states.bg] <- A[states.bg, states.bg] * (1 -
+                                                          rowSums(A[states.bg, c(states.n1.e, states.n1.p)]))
   
-  # create model object
-  model <- list(nstates=nstates, marks=marks, emisP=E, transP=A, initP=I, labels=labels, colors=colors)
+  A[states.n2.e, states.bg] <- rowSums(A[states.n1.e, states.a.e])/length(states.bg)
+  A[states.n2.p, states.bg] <- rowSums(A[states.n1.p, states.a.p])/length(states.bg)
+  
+  A[states.n2.e,states.n2.e] <- A[states.n2.e,states.n2.e]/rowSums(A[states.n2.e,states.n2.e]) *
+    (1 - rowSums(A[states.n2.e,-states.n2.e]))
+  
+  A[states.n2.p,states.n2.p] <- A[states.n2.p,states.n2.p]/rowSums(A[states.n2.p,states.n2.p]) *
+    (1 - rowSums(A[states.n2.p,-states.n2.p]))
+  
+  A[is.nan(A)] <- 0
+  p <- A[rowSums(A)-1 > 1e-9,]
+  diff <- 1-ifelse(is.numeric(p), sum(p), rowSums(p))
+  pa <- p[-states.bg][p[-states.bg] > 0]
+  if (diff<0) {
+    pa <- pa + diff*pa
+  } else {
+    pa <- pa - diff*pa
+  }
+  p[-states.bg][p[-states.bg] > 0] <- pa
+  A[rowSums(A)-1 > 1e-9,] <- p
+  
+  I <- matrix(rep(0, nstates))
+  I[c(states.n1.e, states.n1.p, states.bg)] <- 1/length(c(states.n1.e,
+                                                          states.n1.p, states.bg))
+  model <- list(nstates = nstates, marks = marks, emisP = E,
+                transP = A, initP = I, labels = labels, colors = colors)
   return(model)
 }

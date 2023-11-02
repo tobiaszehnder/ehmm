@@ -140,7 +140,61 @@ applyModel <- function(regions, model=NULL, provideModel=FALSE, genomeSize, coun
   cat("done\n\n")
 }
 
-extractRegions <- function(segmentation, regions, genomeSize, outdir){
+applyModelInspect <- function (regions, model = NULL, provideModel = FALSE, genomeSize,
+                             counts = NULL, bamtab = NULL, outdir = ".", nthreads = 1,
+                             learnTrans = FALSE, refCounts = NULL) {
+  binsize <- 100
+  if (!is.null(model))
+    provideModel <- FALSE
+  if (is.null(model) && !provideModel) {
+    cat("No model specified. Provided mESC model will be used.")
+    provideModel <- TRUE
+  }
+  dir.create(file.path(outdir), showWarnings = FALSE)
+  if (provideModel) {
+    mark.acc <- unlist(sapply(c("acc", "atac", "dhs", "dnase"),
+                              function(pattern) which(grepl(pattern, tolower(bamtab$mark)))))
+    if (length(mark.acc) != 1) {
+      stop("Error: Exactly one of the given mark names must contain \"atac\", \"dhs\" or \"dnase\".\n\n         If your chromatin accessibility assay is neither ATAC-seq nor DNase-seq, name it \"ACC\".\n\n         Example: --mark ACC:/path/chromatin_accessibility_assay.bam")
+    }
+    mark.k27ac <- which(grepl("k27ac", tolower(bamtab$mark)))
+    mark.k4me1 <- which(grepl("k4me1", tolower(bamtab$mark)))
+    mark.k4me3 <- which(grepl("k4me3", tolower(bamtab$mark)))
+    load(system.file("extdata", "mESC.rdata", package = "ehmm",
+                     mustWork = TRUE))
+    model$marks <- bamtab$mark[c(mark.acc, mark.k27ac, mark.k4me1,
+                                 mark.k4me3)]
+    names(counts.tables) <- model$marks
+    refCounts <- reconstructCountmatrix(counts.tables)
+  }
+  if (is.null(counts)) {
+    counts <- getCountMatrix(regions, bamtab, outdir, binsize = 100,
+                             nthreads, pseudoCount = 1)
+  }
+  if (!(is.null(refCounts))) {
+    if (!all(as.vector(unique(seqnames(regions))) %in% names(genomeSize))) {
+      names(genomeSize) <- gsub("chr", "", names(genomeSize))
+    }
+    counts <- quantileNormalizeCounts(counts = counts, refCounts = refCounts,
+                                      regions = regions, genomeSize = genomeSize, bamtab = bamtab,
+                                      outdir = outdir, nthreads = nthreads)
+  }
+  cat("applying model\n")
+  segmentation <- segment(counts = counts, regions = regions,
+                          model = model, nstates = model$nstates, nthreads = nthreads,
+                          verbose_kfoots = TRUE, nbtype = "lognormal", notrain = !learnTrans,
+                          fix_emisP = learnTrans)
+  # cat("producing report\n")
+  viterbi_segments <- statesToSegments(segmentation$viterbi,
+                                       segmentation$segments)
+  # report(segments = viterbi_segments, model = model, rdata = segmentation,
+  #       outdir = outdir, colors = model$colors, labels = model$labels)
+  cat("extract enhancer / promoter elements\n")
+  extractRegions(segmentation, regions, genomeSize, outdir)
+  cat("done\n\n")
+}
+
+extractRegionsOriginal <- function(segmentation, regions, genomeSize, outdir){
   # this function tiles regions into 100 bp windows, assigns viterbi states and scores, extracts enhancer / promoter regions according to viterbi decoding,
   # and writes both scores and decoded elements to file
   labels <- segmentation$model$labels
@@ -160,6 +214,22 @@ extractRegions <- function(segmentation, regions, genomeSize, outdir){
       export.bed(elms, regionsBedfile)
     }
   }, segmentation$score, c('enhancer', 'promoter'))
+}
+
+extractRegions <- function(segmentation, regions, genomeSize, outdir) {
+  labels <- segmentation$model$labels
+  gr <- unlist(tile(regions, width = 100))
+  GenomeInfoDb:::seqlengths(gr) <- genomeSize[GenomeInfoDb:::seqlevels(gr)]
+  gr$name <- labels[segmentation$viterbi]
+  mapply(function(scores, elmName) {
+    label <- toupper(substr(elmName, 1, 1))
+    gr$score <- scores
+    regionsBedfile <- sprintf("%s/%sRegions.bed", outdir,
+                              elmName)
+    elms.tiled <- gr[startsWith(gr$name, paste0(label, "_A"))]
+    file.create(regionsBedfile)
+    export.bed(elms.tiled, regionsBedfile)
+  }, segmentation$score, c("enhancer", "promoter"))
 }
 
 readGenomeSize <- function(genomeSize){

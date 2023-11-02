@@ -59,22 +59,12 @@ writeCountsDouble <- function(counts, path){
   }
 }
 
-getCountMatrix <- function(regions, bamtab, outdir=NULL, binsize=100, nthreads=1, pseudoCount=1){
-  # This script calculates a count matrix for given regions based on all bam-files in a given bam-directory and writes it to file (only if outdir is given).
-  
-  # make bamtab object
-  # default shift is 75. set to 0 in case of ATAC / DHS
-  bamtab$shift <- sapply(tolower(bamtab$mark), function(m) ifelse(any(sapply(c('atac', 'dhs', 'dnase', 'acc'), function(s) grepl(s, m))), 0, 75))
-  
-  # create count matrix
-  counts <- getcounts(regions, bamtab, binsize=binsize, nthreads=nthreads) + pseudoCount
-  
-  # write count matrix
-  if(!is.null(outdir)){
-    target <- paste(outdir, 'countmatrix.txt', sep='/')
-    cat(sep="", "writing count matrix to the file '", target, "'\n")
-    writeCountsDouble(counts, target)
-  }
-  
+getCountMatrix <- function (regions, bamtab, outdir = NULL, binsize = 100, nthreads = 1, 
+                            pseudoCount = 1) {
+  bamtab$shift <- sapply(tolower(bamtab$mark), function(m) ifelse(any(sapply(c("atac", 
+                                                                               "dhs", "dnase", "acc"), function(s) grepl(s, m))), 0, 
+                                                                  75))
+  counts <- getcounts(regions, bamtab, binsize = binsize, 
+                      nthreads = nthreads) + pseudoCount
   return(counts)
 }
