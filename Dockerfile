@@ -1,9 +1,7 @@
-FROM rocker/r-ver:4.3.1
+FROM bioconductor/bioconductor_docker:RELEASE_3_11
 
-# Install devtools
-RUN Rscript -e "install.packages('devtools')"
+COPY . /install
 
-COPY . /tmp
+WORKDIR /install
 
-# Install package
-RUN Rscript -e "devtools::install('/tmp')"
+RUN Rscript install.R

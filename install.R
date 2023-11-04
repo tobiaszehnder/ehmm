@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
 
-library("devtools")
+BiocManager::install(c("IRanges", "GenomicRanges", "bamsignals", "rtracklayer", "Rsamtools", "edgeR", "affyPLM"))
 
-build()
-install()
+devtools::build()
+devtools::install()
