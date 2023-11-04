@@ -2,7 +2,7 @@ man
 tests
 demo
 inst
-.devcontainer
+.devcontainer/*
 publish_docker.sh
 README.md
 .gitignore

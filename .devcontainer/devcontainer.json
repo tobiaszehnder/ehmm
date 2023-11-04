@@ -33,7 +33,8 @@
 				"RDebugger.r-debugger",
 				"REditorSupport.r",
 				"ms-vscode.cpptools-extension-pack",
-				"GitHub.copilot"
+				"GitHub.copilot",
+				"ms-azuretools.vscode-docker"
 			],
 			"settings": {
 				"r.rterm.linux": "/usr/local/bin/radian",
