@@ -2,3 +2,7 @@ man
 tests
 demo
 inst
+.devcontainer
+publish_docker.sh
+README.md
+.gitignore
