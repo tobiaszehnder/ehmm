@@ -16,6 +16,9 @@
 			"installRadian": true,
 			"installVscDebugger": true,
 			"installBspm": true
+		},
+		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+			"packages": "r-cran-curl"
 		}
 	},
 
@@ -23,7 +26,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "R -q -e 'install.packages(\"devtools\")'",
+	"postCreateCommand": "R -q -e 'install.packages(\"HMM\")'",
 
 	// Configure tool-specific properties.
 	"customizations": {
