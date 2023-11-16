@@ -4,7 +4,7 @@ validateBamtab <- function (bamtab) {
   if (!is.data.frame(bamtab))
     stop("'bamtab' must be a 'data.frame'")
   reqfields <- c("mark", "path")
-  optfields <- "shift"
+  optfields <- c("shift", "mapq", "pairedend")
   if (!all(reqfields %in% names(bamtab)))
     stop("missing required fields")
   if (!all(names(bamtab) %in% c(reqfields, optfields)))
