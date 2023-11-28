@@ -119,34 +119,96 @@ constructModel <- function(model.e, model.p, counts.e, counts.p, regions.e, regi
   writeModel(model, modelPath, type='lognormal')
 }
 
+constructModelInspect <- function (model.e, model.p, counts.e, counts.p, regions.e, regions.p,
+                                 model.bg = NULL, fg_to_bg = FALSE, accStates.e = NULL, nucStates.e = NULL,
+                                 accStates.p = NULL, nucStates.p = NULL, outdir = ".", nthreads = 1)
+{
+  binsize <- 100
+  if (any(is.null(accStates.e), is.null(nucStates.p), is.null(accStates.p),
+          is.null(nucStates.p))) {
+    cat("Automated state selection\n")
+    states.e <- selectStates(model.e)
+    accStates.e <- states.e$acc
+    nucStates.e <- states.e$nuc.e
+    states.p <- selectStates(model.p)
+    accStates.p <- states.p$acc
+    nucStates.p <- states.p$nuc.p
+  }
+  if (all(is.null(model.bg), fg_to_bg == FALSE)) {
+    cat("No background model specified. Creating FGtoBG background model using foreground emissions and unitized transitions.")
+    fg_to_bg <- TRUE
+  }
+  if (fg_to_bg == TRUE) {
+    nstates.bg <- model.e$nstates + model.p$nstates
+    model.bg <- list(nstates = nstates.bg, marks = model.e$marks,
+                     emisP = c(model.e$emisP, model.p$emisP), transP = matrix(1/nstates.bg,
+                                                                              nrow = nstates.bg, ncol = nstates.bg), initP = rep(1/nstates.bg,
+                                                                                                                                 nstates.bg), labels = paste0("bg", 1:nstates.bg),
+                     colors = tail(colorRampPalette(brewer.pal(9, "Greys"))(20),
+                                   nstates.bg))
+  }
+  model.e.init <- initializeParams(model.e, accStates.e, nucStates.e)
+  model.p.init <- initializeParams(model.p, accStates.p, nucStates.p)
+  cat("Refine foreground models\n")
+  segmentation.e.refinedTrans <- segment(counts = counts.e,
+                                         regions = regions.e, nstates = model.e.init$nstates,
+                                         nthreads = nthreads, verbose_kfoots = TRUE,
+                                         trainMode = "viterbi", fix_emisP = TRUE, nbtype = "lognormal",
+                                         endstate = model.e.init$endstates)
+  segmentation.p.refinedTrans <- segment(counts = counts.p,
+                                         regions = regions.p, nstates = model.p.init$nstates,
+                                         nthreads = nthreads, verbose_kfoots = TRUE,
+                                         trainMode = "viterbi", fix_emisP = TRUE, nbtype = "lognormal",
+                                         endstate = model.p.init$endstates)
+  segmentation.e.refinedTrans$model$labels <- c(paste0("E_N1.",
+                                                       1:length(nucStates.e)), paste0("E_A.", 1:length(accStates.e)),
+                                                paste0("E_N2.", 1:length(nucStates.e)))
+  segmentation.p.refinedTrans$model$labels <- c(paste0("P_N1.",
+                                                       1:length(nucStates.p)), paste0("P_A.", 1:length(accStates.p)),
+                                                paste0("P_N2.", 1:length(nucStates.p)))
+  model.bg$labels <- paste0("bg", 1:model.bg$nstates)
+  segmentation.e.refinedTrans$model$colors <- c(rev(tail(brewer.pal(9,
+                                                                    "Greens")[-c(8, 9)], length(nucStates.e))), colorRampPalette(brewer.pal(9,
+                                                                                                                                            "YlOrBr")[2:4])(length(accStates.e)), rev(tail(brewer.pal(9,
+                                                                                                                                                                                                      "Greens")[-c(8, 9)], length(nucStates.e))))
+  segmentation.p.refinedTrans$model$colors <- c(rev(tail(brewer.pal(9,
+                                                                    "Reds")[-9], length(nucStates.p))), colorRampPalette(brewer.pal(9,
+                                                                                                                                    "YlOrBr")[2:4])(length(accStates.p)), rev(tail(brewer.pal(9,
+                                                                                                                                                                                              "Reds")[-9], length(nucStates.p))))
+  model.bg$colors <- tail(colorRampPalette(brewer.pal(9, "Greys"))(20),
+                          model.bg$nstates)
+  model <- combineFgBgModels(model.bg, segmentation.e.refinedTrans$model,
+                             segmentation.p.refinedTrans$model)
+  modelPath <- paste(outdir, "model.txt", sep = "/")
+  # writeModel(model, modelPath, type = "lognormal")
+  return(model)
+}
+
 readStates <- function(stateString){
   # This function parses a comma-separated string of state numbers to a integer-vector.
   return(as.integer(strsplit(stateString, ',')[[1]]))
 }
 
-selectStates <- function(model){
-  # assign marks
-  mark.acc <- unlist(sapply(c('acc', 'atac', 'dhs', 'dnase'), function(pattern) which(grepl(pattern, tolower(model$marks)))))
-  if (length(mark.acc) != 1){
-    stop('Error: Exactly one of the given mark names must contain "atac", "dhs" or "dnase".\n
-         If your chromatin accessibility assay is neither ATAC-seq nor DNase-seq, name it "ACC".\n
-         Example: --mark ACC:/path/chromatin_accessibility_assay.bam')
+selectStates <- function (model) {
+  mark.acc <- unlist(sapply(c("acc", "atac", "dhs", "dnase"),
+                            function(pattern) which(grepl(pattern, tolower(model$marks)))))
+  if (length(mark.acc) != 1) {
+    stop("Error: Exactly one of the given mark names must contain \"atac\", \"dhs\" or \"dnase\".\n\n         If your chromatin accessibility assay is neither ATAC-seq nor DNase-seq, name it \"ACC\".\n\n         Example: --mark ACC:/path/chromatin_accessibility_assay.bam")
   }
-  mark.k27ac <- which(grepl('k27ac', tolower(model$marks)))
-  mark.k4me1 <- which(grepl('k4me1', tolower(model$marks)))
-  mark.k4me3 <- which(grepl('k4me3', tolower(model$marks)))
-  if (any(sapply(c(mark.k27ac, mark.k4me1, mark.k4me3), function(mrk) length(mrk) != 1))){
-    stop('Error: Automated state selection requires the three marks H3K27ac, H3K4me1, and H3K4me3 and their correct naming.\n
-         If you work with different marks, please select the states manually.
-         Example: --accStates.e 1,2 --nucStates.e 3,5 --accStates.p 2,3 --nucStates.p 1,4')
+  mark.k27ac <- which(grepl("k27ac", tolower(model$marks)))
+  mark.k4me1 <- which(grepl("k4me1", tolower(model$marks)))
+  mark.k4me3 <- which(grepl("k4me3", tolower(model$marks)))
+  if (any(sapply(c(mark.k27ac, mark.k4me1, mark.k4me3), function(mrk) length(mrk) !=
+                 1))) {
+    stop("Error: Automated state selection requires the three marks H3K27ac, H3K4me1, and H3K4me3 and their correct naming.\n\n         If you work with different marks, please select the states manually.\n         Example: --accStates.e 1,2 --nucStates.e 3,5 --accStates.p 2,3 --nucStates.p 1,4")
   }
   atac <- sapply(model$emisP, function(emis) emis$mu[mark.acc])
   k27ac <- sapply(model$emisP, function(emis) emis$mu[mark.k27ac])
   k4me1 <- sapply(model$emisP, function(emis) emis$mu[mark.k4me1])
   k4me3 <- sapply(model$emisP, function(emis) emis$mu[mark.k4me3])
-  acc <- order(atac/k27ac, decreasing=T)[1:2]
-  methyl.ratio <- order(k4me1/k4me3, decreasing=T)
+  acc <- order(atac/k27ac, decreasing = T)[1:2]
+  methyl.ratio <- order(k4me1/k4me3, decreasing = T)
   nuc.e <- methyl.ratio[!(methyl.ratio %in% acc)][1:2]
   nuc.p <- rev(methyl.ratio[!(methyl.ratio %in% acc)])[1:2]
-  return(list(acc=acc, nuc.e=nuc.e, nuc.p=nuc.p))
+  return(list(acc = acc, nuc.e = nuc.e, nuc.p = nuc.p))
 }
